@@ -1,0 +1,6 @@
+{
+  "mode": "auto-intercept",
+  "scoreThreshold": 72,
+  "rescueFailureSpirals": true,
+  "maxTranscriptTurns": 12
+}

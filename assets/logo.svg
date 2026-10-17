@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" fill="none">
+  <defs>
+    <linearGradient id="prismGrad" x1="64" y1="44" x2="188" y2="212" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#38BDF8" stop-opacity="0.28"/>
+      <stop offset="50%" stop-color="#818CF8" stop-opacity="0.18"/>
+      <stop offset="100%" stop-color="#C084FC" stop-opacity="0.28"/>
+    </linearGradient>
+    <linearGradient id="prismStroke" x1="64" y1="44" x2="192" y2="212" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#38BDF8"/>
+      <stop offset="50%" stop-color="#818CF8"/>
+      <stop offset="100%" stop-color="#E879F9"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Incoming diffuse prompt ray -->
+  <line x1="26" y1="148" x2="94" y2="128" stroke="#94A3B8" stroke-width="6" stroke-linecap="round" stroke-dasharray="2 10"/>
+  <line x1="26" y1="148" x2="96" y2="128" stroke="#F8FAFC" stroke-width="4" stroke-linecap="round"/>
+
+  <!-- Internal refraction beam inside prism -->
+  <polygon points="96,128 158,104 166,144" fill="#38BDF8" fill-opacity="0.35"/>
+  <line x1="96" y1="128" x2="162" y2="122" stroke="#E0F2FE" stroke-width="3.5" stroke-linecap="round"/>
+
+  <!-- 3 Refracted Output Spectrums (Precision, Root-Cause, Strict Spec) -->
+  <!-- Spectrum 1: Precision (Amber/Gold) -->
+  <line x1="158" y1="106" x2="230" y2="74" stroke="#F59E0B" stroke-width="6" stroke-linecap="round"/>
+  <circle cx="230" cy="74" r="4" fill="#FBBF24"/>
+
+  <!-- Spectrum 2: Root-Cause (Cyan/Sky) -->
+  <line x1="162" y1="124" x2="232" y2="124" stroke="#06B6D4" stroke-width="6" stroke-linecap="round"/>
+  <circle cx="232" cy="124" r="4" fill="#22D3EE"/>
+
+  <!-- Spectrum 3: Strict Spec / TDD (Emerald/Violet) -->
+  <line x1="166" y1="142" x2="230" y2="174" stroke="#10B981" stroke-width="6" stroke-linecap="round"/>
+  <circle cx="230" cy="174" r="4" fill="#34D399"/>
+
+  <!-- Central Prism Triangle (with 10%+ safe margin) -->
+  <polygon points="124,44 56,204 192,204" fill="url(#prismGrad)" stroke="url(#prismStroke)" stroke-width="7" stroke-linejoin="round"/>
+
+  <!-- Subtle inner prism facet -->
+  <line x1="124" y1="44" x2="124" y2="204" stroke="#818CF8" stroke-width="2" stroke-opacity="0.35" stroke-dasharray="4 6"/>
+</svg>

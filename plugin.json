@@ -1,0 +1,12 @@
+{
+  "name": "refract",
+  "displayName": "Refract — Context & Prompt Trajectory Engine",
+  "version": "1.0.0",
+  "description": "Trajectory-aware AI prompt interceptor and coach. Refracts rough prompts and follow-ups through your full conversation history and workspace context, rescues debugging loops, and provides /refract, /refract-check, and /refract-mode.",
+  "logo": "assets/logo.svg",
+  "suggestedPrompts": [
+    "/refract-check Audit my prompt and conversation health with an interactive scorecard",
+    "/refract make this handler async and fix the error",
+    "/refract-mode Switch Refract between Auto-Intercept Mode and Coach Mode"
+  ]
+}

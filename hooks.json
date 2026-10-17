@@ -1,0 +1,12 @@
+{
+  "refract-pre-invocation": {
+    "enabled": true,
+    "PreInvocation": [
+      {
+        "type": "command",
+        "command": "python3 ./scripts/refract_engine.py",
+        "timeout": 5
+      }
+    ]
+  }
+}
