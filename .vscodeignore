@@ -1,0 +1,7 @@
+.git/**
+.gitignore
+.vscode/**
+tests/**
+**/__pycache__/**
+*.vsix
+.DS_Store

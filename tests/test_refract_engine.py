@@ -5,10 +5,12 @@ import sys
 import tempfile
 import unittest
 from unittest.mock import patch
+import zipfile
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT_ROOT / "scripts"))
 
+import build_vsix  # noqa: E402
 import refract_engine  # noqa: E402
 
 
@@ -271,7 +273,40 @@ class TestRefractEngine(unittest.TestCase):
         )
         self.assertIn("💠 <b>Refracted Prompt</b>", ephemeral)
 
+    def test_vscode_manifest_and_png_icon_compliance(self) -> None:
+        pkg_path = PROJECT_ROOT / "package.json"
+        self.assertTrue(pkg_path.exists())
+        pkg = json.loads(pkg_path.read_text(encoding="utf-8"))
+        self.assertEqual(pkg["name"], "refract")
+        self.assertEqual(pkg["publisher"], "damiththa")
+        self.assertEqual(pkg["icon"], "assets/logo.png")
+        self.assertEqual(pkg["main"], "./src/extension.js")
+        self.assertIn("chatParticipants", pkg["contributes"])
+        self.assertIn("languageModelTools", pkg["contributes"])
+
+        width, height = build_vsix.verify_png_dimensions(PROJECT_ROOT / "assets" / "logo.png")
+        self.assertEqual((width, height), (256, 256))
+
+    def test_vscode_vsix_packaging_integrity(self) -> None:
+        vsix_path = build_vsix.package_vsix(output_dir=self.tmp_path)
+        self.assertTrue(vsix_path.exists())
+        self.assertEqual(vsix_path.name, "refract-1.0.0.vsix")
+
+        with zipfile.ZipFile(vsix_path, "r") as zf:
+            names = set(zf.namelist())
+            self.assertIn("[Content_Types].xml", names)
+            self.assertIn("extension.vsixmanifest", names)
+            self.assertIn("extension/package.json", names)
+            self.assertIn("extension/README.md", names)
+            self.assertIn("extension/CHANGELOG.md", names)
+            self.assertIn("extension/LICENSE.txt", names)
+            self.assertIn("extension/assets/logo.png", names)
+            self.assertIn("extension/src/extension.js", names)
+            self.assertIn("extension/src/refractCore.js", names)
+            manifest_xml = zf.read("extension.vsixmanifest").decode("utf-8")
+            self.assertIn('Publisher="damiththa"', manifest_xml)
+            self.assertIn('Id="refract"', manifest_xml)
+
 
 if __name__ == "__main__":
     unittest.main()
-

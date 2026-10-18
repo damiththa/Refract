@@ -1,0 +1,170 @@
+{
+  "name": "refract",
+  "displayName": "Refract — AI Context & Prompt Trajectory Engine",
+  "description": "Trajectory-aware AI prompt refiner & failure-spiral rescuer for VS Code Chat & Copilot. Grounds vague prompts in active files, compiler diagnostics, and terminal errors in <5ms (100% local, zero extra token cost).",
+  "version": "1.0.0",
+  "publisher": "damiththa",
+  "license": "MIT",
+  "icon": "assets/logo.png",
+  "engines": {
+    "vscode": "^1.95.0"
+  },
+  "categories": [
+    "AI",
+    "Chat",
+    "Other"
+  ],
+  "keywords": [
+    "ai",
+    "prompt-engineering",
+    "copilot",
+    "chat-participant",
+    "context-engineering",
+    "debugging",
+    "trajectory",
+    "refract"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/damiththa/Refract.git"
+  },
+  "bugs": {
+    "url": "https://github.com/damiththa/Refract/issues"
+  },
+  "homepage": "https://github.com/damiththa/Refract#readme",
+  "main": "./src/extension.js",
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "contributes": {
+    "chatParticipants": [
+      {
+        "id": "refract.participant",
+        "name": "refract",
+        "fullName": "💠 Refract Trajectory Engine",
+        "description": "Refract rough prompts through conversation trajectory, active files, and live diagnostics (<5ms local)",
+        "isSticky": true,
+        "commands": [
+          {
+            "name": "refract",
+            "description": "Score and refract a prompt across 3 spectrums (⚡ Precision, 🔬 Root-Cause, 🛡️ Strict Spec)"
+          },
+          {
+            "name": "check",
+            "description": "Audit prompt & trajectory health and open the Interactive 5-Dimension Scorecard"
+          },
+          {
+            "name": "mode",
+            "description": "View or switch Refract operating mode (auto-intercept, coach, slash-only)"
+          },
+          {
+            "name": "doctor",
+            "description": "Run Refract environment, diagnostics, and trajectory health check"
+          }
+        ]
+      }
+    ],
+    "languageModelTools": [
+      {
+        "name": "refract_prompt",
+        "displayName": "Refract Prompt & Trajectory Analyzer",
+        "toolReferenceName": "refract",
+        "canBeReferencedInPrompt": true,
+        "icon": "$(sparkle)",
+        "modelDescription": "Analyzes a developer prompt against active workspace files, VS Code Problems/diagnostics, and recent terminal errors using the 5-Dimension Trajectory Rubric, returning 3 grounded prompt spectrums (Precision, Root-Cause, Strict Spec).",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "draftPrompt": {
+              "type": "string",
+              "description": "The rough or ambiguous developer prompt to refract against workspace context and diagnostics."
+            }
+          },
+          "required": [
+            "draftPrompt"
+          ]
+        }
+      }
+    ],
+    "commands": [
+      {
+        "command": "refract.refractPrompt",
+        "title": "Refract Prompt (3 Spectrums)...",
+        "category": "💠 Refract"
+      },
+      {
+        "command": "refract.openScorecard",
+        "title": "Open Interactive Trajectory Scorecard",
+        "category": "💠 Refract"
+      },
+      {
+        "command": "refract.switchMode",
+        "title": "Switch Operating Mode (Auto-Intercept / Coach / Slash-Only)",
+        "category": "💠 Refract"
+      },
+      {
+        "command": "refract.runDoctor",
+        "title": "Run Environment & Health Check (--doctor)",
+        "category": "💠 Refract"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "refract.refractPrompt",
+        "key": "ctrl+alt+p",
+        "mac": "cmd+alt+p"
+      },
+      {
+        "command": "refract.openScorecard",
+        "key": "ctrl+alt+shift+p",
+        "mac": "cmd+alt+shift+p"
+      }
+    ],
+    "configuration": {
+      "title": "💠 Refract — Context & Prompt Trajectory Engine",
+      "properties": {
+        "refract.mode": {
+          "type": "string",
+          "enum": [
+            "auto-intercept",
+            "coach",
+            "slash-only"
+          ],
+          "enumDescriptions": [
+            "Automatically grounds diffuse prompts in-flight and executes immediately via your active VS Code Chat model.",
+            "Shows the 5-Dimension score and lets you pick which spectrum (Precision, Root-Cause, Strict Spec) to execute.",
+            "Only refracts when explicitly invoked via /refract, /check, or Cmd+Alt+P."
+          ],
+          "default": "auto-intercept",
+          "description": "Operating mode for the @refract Chat Participant and prompt interceptor."
+        },
+        "refract.scoreThreshold": {
+          "type": "number",
+          "default": 72,
+          "minimum": 0,
+          "maximum": 100,
+          "description": "Prompts scoring at or above this threshold on the 5-Dimension Trajectory Rubric pass through untouched."
+        },
+        "refract.rescueFailureSpirals": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically pivot to the Root-Cause Isolation spectrum when repeated terminal/compiler errors or frustration prompts are detected."
+        },
+        "refract.alwaysIncludeRules": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [],
+          "description": "Custom team/project rules to attach to every refracted prompt (merged with .agents/refract.json if present)."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "package": "npx @vscode/vsce package",
+    "package:python": "python3 scripts/build_vsix.py",
+    "publish:vsce": "npx @vscode/vsce publish",
+    "test": "python3 -m unittest discover -s tests -v && node tests/refractCore.test.js"
+  }
+}

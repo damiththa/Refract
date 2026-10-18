@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# 💠 Refract — 1-Command Installer & Pre-Flight Checker
+# 💠 Refract — 1-Command Installer, VSIX Packager & Pre-Flight Checker
 # Usage:
 #   ./install.sh                           -> Checks requirements & installs globally to ~/.gemini/config/plugins/refract
 #   ./install.sh --workspace /path/to/repo -> Checks requirements & installs to /path/to/repo/.agents/plugins/refract
-#   ./install.sh --check                   -> Runs pre-flight requirement check only (Antigravity / Python 3.8+)
-#   ./install.sh --check-vscode            -> Runs pre-flight requirement check for Phase 2 VS Code extension (Node 18+, npm, Python 3.8+)
+#   ./install.sh --check                   -> Runs pre-flight requirement check (Antigravity / Python 3.8+)
+#   ./install.sh --check-vscode            -> Runs pre-flight requirement check for VS Code extension packaging
+#   ./install.sh --package-vscode          -> Packages refract-1.0.0.vsix for the VS Code Marketplace
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TARGET_DIR="${HOME}/.gemini/config/plugins/refract"
@@ -16,6 +17,8 @@ if [[ "${1:-}" == "--check" ]]; then
   MODE="check-only"
 elif [[ "${1:-}" == "--check-vscode" ]]; then
   MODE="check-vscode"
+elif [[ "${1:-}" == "--package-vscode" ]]; then
+  MODE="package-vscode"
 elif [[ "${1:-}" == "--workspace" && -n "${2:-}" ]]; then
   TARGET_DIR="$2/.agents/plugins/refract"
 fi
@@ -25,7 +28,7 @@ echo "────────────────────────�
 
 MISSING_REQS=0
 
-# 1. Check Python 3 (Required for Antigravity PreInvocation Hook & CLI Engine)
+# 1. Check Python 3 (Required for Antigravity Hook & Zero-Dependency VSIX Packager)
 if ! command -v python3 >/dev/null 2>&1; then
   echo "❌ MISSING REQUIREMENT: 'python3' was not found in your PATH."
   echo "   Refract requires Python 3.8+ (standard library only, zero pip packages)."
@@ -47,7 +50,7 @@ fi
 
 # 2. Check Python Standard Library Modules
 if [[ "${MISSING_REQS}" -eq 0 ]]; then
-  if ! python3 -c 'import argparse, collections, html, json, os, pathlib, re, sys' >/dev/null 2>&1; then
+  if ! python3 -c 'import argparse, collections, html, json, os, pathlib, re, struct, sys, zipfile, zlib' >/dev/null 2>&1; then
     echo "❌ BROKEN PYTHON STDLIB: One or more standard library modules failed to import."
     MISSING_REQS=1
   else
@@ -55,7 +58,7 @@ if [[ "${MISSING_REQS}" -eq 0 ]]; then
   fi
 fi
 
-# 3. Check Git (Recommended for updates & workspace branch tracking)
+# 3. Check Git
 if command -v git >/dev/null 2>&1; then
   GIT_VER="$(git --version | awk '{print $3}')"
   echo "✅ Git detected: v${GIT_VER}"
@@ -63,35 +66,20 @@ else
   echo "⚠️  OPTIONAL: 'git' not found in PATH (only needed for cloning/updating the repo)."
 fi
 
-# 4. Check Node.js & npm (ONLY required if --check-vscode is passed for Phase 2 VS Code Extension dev)
-if [[ "${MODE}" == "check-vscode" ]]; then
+# 4. Check VS Code Extension Requirements (when --check-vscode or --package-vscode is used)
+if [[ "${MODE}" == "check-vscode" || "${MODE}" == "package-vscode" ]]; then
   echo "────────────────────────────────────────────────────────────"
-  echo "🔍 Checking Phase 2 VS Code Extension Build Requirements (Node.js 18+ & npm)..."
-  if ! command -v node >/dev/null 2>&1; then
-    echo "❌ MISSING REQUIREMENT (VS Code Extension): 'node' was not found in your PATH."
-    echo "   Building the Phase 2 VS Code extension requires Node.js 18+ and npm."
-    echo "   Install via: brew install node   OR   https://nodejs.org/"
-    MISSING_REQS=1
-  else
+  echo "🔍 Checking VS Code Extension Packaging & Runtime Requirements..."
+  echo "ℹ️  End-User Runtime: VS Code 1.95+ only (Zero external installs needed by Marketplace users!)"
+  if command -v node >/dev/null 2>&1 && command -v npm >/dev/null 2>&1; then
     NODE_VER="$(node -v)"
-    NODE_MAJOR="$(node -e 'console.log(process.versions.node.split(".")[0])')"
-    if [[ "${NODE_MAJOR}" -lt 18 ]]; then
-      echo "❌ OUTDATED REQUIREMENT (VS Code Extension): Node ${NODE_VER} detected, but Node.js 18+ is required."
-      MISSING_REQS=1
-    else
-      echo "✅ Node.js requirement met: ${NODE_VER} (>= v18)"
-    fi
-  fi
-
-  if ! command -v npm >/dev/null 2>&1; then
-    echo "❌ MISSING REQUIREMENT (VS Code Extension): 'npm' was not found in your PATH."
-    MISSING_REQS=1
-  else
     NPM_VER="$(npm -v)"
-    echo "✅ npm requirement met: v${NPM_VER}"
+    echo "✅ Node.js & npm detected: Node ${NODE_VER}, npm v${NPM_VER} (can use 'npx @vscode/vsce package')"
+  else
+    echo "ℹ️  Optional CLI ('node' / 'npm') not installed on this machine."
+    echo "   • To use Microsoft's vsce CLI later: brew install node"
+    echo "   • Ready right now: Zero-dependency Python VSIX builder (python3 scripts/build_vsix.py)"
   fi
-else
-  echo "ℹ️  Note: Node.js / npm is NOT required for the Google Antigravity plugin."
 fi
 
 echo "────────────────────────────────────────────────────────────"
@@ -102,11 +90,16 @@ if [[ "${MISSING_REQS}" -ne 0 ]]; then
 fi
 
 if [[ "${MODE}" == "check-only" || "${MODE}" == "check-vscode" ]]; then
-  echo "✅ All checked requirements are satisfied!"
+  echo "✅ All required checks passed!"
   exit 0
 fi
 
-# 5. Install Plugin Bundle
+if [[ "${MODE}" == "package-vscode" ]]; then
+  python3 "${SCRIPT_DIR}/scripts/build_vsix.py"
+  exit 0
+fi
+
+# 5. Install Antigravity Plugin Bundle
 echo "💠 Installing Refract plugin to: ${TARGET_DIR}"
 mkdir -p "${TARGET_DIR}"
 
@@ -121,14 +114,12 @@ cp -R "${SCRIPT_DIR}/rules" "${TARGET_DIR}/"
 cp -R "${SCRIPT_DIR}/scripts" "${TARGET_DIR}/"
 cp -R "${SCRIPT_DIR}/skills" "${TARGET_DIR}/"
 
-# Preserve existing user config.json if already customized
 if [[ ! -f "${TARGET_DIR}/config.json" ]]; then
   cp "${SCRIPT_DIR}/config.json" "${TARGET_DIR}/config.json"
 fi
 
 chmod +x "${TARGET_DIR}/scripts/refract_engine.py"
 
-# 6. Post-Install Health Verification (--doctor)
 if python3 "${TARGET_DIR}/scripts/refract_engine.py" --doctor >/dev/null 2>&1; then
   echo "✅ Post-install health check (--doctor) passed!"
 else
@@ -138,6 +129,3 @@ else
 fi
 
 echo "✅ Refract installed successfully!"
-echo "   • Slash commands registered: /refract, /refract-check, /refract-mode"
-echo "   • Lifecycle hook registered: PreInvocation (transcript-aware interceptor)"
-echo "   • Next step: Restart Google Antigravity once if this is your first install."
