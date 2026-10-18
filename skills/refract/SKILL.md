@@ -22,7 +22,7 @@ python3 ~/.gemini/config/plugins/refract/scripts/refract_engine.py \
   --analyze "<USER_DRAFT_PROMPT>" \
   --transcript "<TRANSCRIPT_JSONL_PATH>"
 ```
-*(If running from a workspace copy before global install, use `/Users/madushan/.gemini/antigravity/scratch/refract/scripts/refract_engine.py`.)*
+*(If running from a local workspace plugin copy before global install, use `./scripts/refract_engine.py` relative to the plugin root.)*
 
 ## Step 2: Enrich with Live Workspace Context
 
