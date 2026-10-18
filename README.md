@@ -22,28 +22,49 @@ Most prompt extensions treat prompt refinement like copywriting—taking a 6-wor
 
 ---
 
-## 🧠 How It Works
+## 🧠 How It Works, Data Privacy & LLM Architecture
 
 ### In 4 Short Bullets
-1. **Intercepts (`<5ms`)**: When you send a chat message, Antigravity's `PreInvocation` hook triggers `scripts/refract_engine.py` *before* the LLM is called.
-2. **Reads Trajectory**: It scans the tail of your active session (`transcript.jsonl`) to find recently edited files, test commands run, and any unresolved errors.
+1. **Intercepts Locally (`<5ms`, 100% On-Device)**: When you send a chat message, Antigravity's `PreInvocation` hook runs `scripts/refract_engine.py` locally on your machine *before* any LLM is called.
+2. **Reads Local Trajectory**: It scans the tail of your active session (`transcript.jsonl` on local disk) to find recently edited files, test commands run, and any unresolved errors.
 3. **Scores & Grounds (5-Dimension Rubric)**:
    - **Score $\ge 72$ (Clear)**: Passes through untouched (`{}`) with zero overhead.
    - **Score $< 72$ (Diffuse / Spiral / Fork)**: Binds missing file/error references and synthesizes 3 execution spectrums (**⚡ Precision**, **🔬 Root-Cause**, **🛡️ Strict Spec**).
-4. **Executes with Host LLM**: Injects a transient `ephemeralMessage` (which auto-clears after the turn so it never bloats future context) and executes using your active Antigravity model (Gemini Flash / Pro / Argon).
+4. **Executes with Your Active Host LLM**: Injects a transient `ephemeralMessage` into the current turn so **your already-selected Host IDE model** (e.g., Gemini Flash, Gemini Pro, or Gemini Argon in Antigravity) executes the upgraded task in a single pass.
 
-### Architecture Diagram
+---
+
+### 🔒 Data Privacy & LLM Boundary Diagram
 
 ```mermaid
-flowchart LR
-    U["👤 User Prompt\n'fix the error in this file'"] --> H["⚡ PreInvocation Hook\n(refract_engine.py <5ms)"]
-    T[("📜 transcript.jsonl\nRecent Files, Commands & Errors")] --> H
-    H --> D{"5-Dimension\nTrajectory Score"}
-    D -->|"Score >= 72\n(Focused)"| P["🟢 Pass-Through ({})\nZero Overhead"]
-    D -->|"Score < 72\nor Failure Spiral"| R["💠 Refract into 3 Spectrums\n• ⚡ Precision\n• 🔬 Root-Cause\n• 🛡️ Strict Spec"]
-    P --> M["🧠 Active Host LLM\nExecutes Task"]
-    R -->|"ephemeralMessage"| M
+flowchart TB
+    subgraph LOCAL["🔒 100% Local On-Device Boundary (Zero External Network Calls by Refract)"]
+        direction LR
+        U["👤 User Prompt\n'fix the error in this file'"] --> H["⚡ PreInvocation Hook\nscripts/refract_engine.py (<5ms)\nPure Local Python (No LLM / No Network)"]
+        T[("📜 Local Disk\ntranscript.jsonl &\n.agents/refract.json")] --> H
+        H --> D{"5-Dimension\nTrajectory Score"}
+        D -->|"Score >= 72\n(Focused)"| P["🟢 Pass-Through ({})\nUntouched Prompt"]
+        D -->|"Score < 72\nor Failure Spiral"| R["💠 Grounded into 3 Spectrums\n• ⚡ Precision\n• 🔬 Root-Cause\n• 🛡️ Strict Spec"]
+    end
+
+    subgraph HOST["🧠 Your Existing Host IDE Session (Antigravity / VS Code)"]
+        M["Active Host LLM You Selected\n(e.g. Gemini Flash / Pro / Argon, or Copilot)\nExecutes the Upgraded Task Directly"]
+    end
+
+    P --> M
+    R -->|"Transient ephemeralMessage\n(Auto-clears after turn)"| M
 ```
+
+---
+
+### 🤖 At a Glance: Data Privacy & Which LLM Refract Uses
+
+| Question | How Refract Works | Why It Matters |
+| :--- | :--- | :--- |
+| **Does Refract send my code or prompts outside my machine?** | **No — Never.** `refract_engine.py` contains **zero networking code** (no `urllib`, `requests`, `http`, or sockets) and collects **zero telemetry**. All transcript parsing and context binding happen 100% on your local disk. | Safe for proprietary, enterprise, and NDA codebases. Refract never acts as a third-party proxy. |
+| **Which LLM does the `<5ms` interceptor use?** | **None (Deterministic Local Python).** The `PreInvocation` hook uses fast local regex, heuristics, and `transcript.jsonl` state machine parsing rather than calling an LLM. | **$<5\text{ms}$ latency** instead of waiting $2\text{–}4\text{ seconds}$ before every chat message, and **\$0 extra token cost**. |
+| **Which LLM executes the refracted prompt or `/refract` commands?** | **Your Active Host IDE Model.** Refract piggybacks on whichever model you already have selected in Antigravity (e.g., **Gemini 3.8 Flash**, **Gemini Pro**, **Gemini 4 Argon**) or VS Code (`vscode.lm`). | No separate OpenAI/Anthropic/Gemini API keys to configure or pay for, and the model retains full access to your IDE tools. |
+| **Does Refract bloat my conversation history?** | **No.** In passive mode, Refract injects an `ephemeralMessage` which Antigravity automatically drops as soon as the turn finishes. | Keeps your context window clean across long coding sessions. |
 
 ---
 
