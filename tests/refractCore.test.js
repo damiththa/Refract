@@ -65,7 +65,7 @@ test("strong, specific prompt scores as execution-ready", () => {
   assert.equal(ev.isFailureSpiral, false);
 });
 
-test("webview scorecard HTML escapes input and embeds spectrums", () => {
+test("webview scorecard HTML escapes input, includes CSP, and embeds spectrums", () => {
   const prompt = "fix <script>alert(1)</script> in this file";
   const traj = { recent_files: ["/workspace/src/app.ts"], turn_count: 2 };
   const ev = core.evaluatePrompt(prompt, traj);
@@ -73,7 +73,15 @@ test("webview scorecard HTML escapes input and embeds spectrums", () => {
   const html = core.buildWebviewScorecardHtml(prompt, ev, specs, traj, "auto-intercept");
   assert.match(html, /Refract Trajectory Scorecard/);
   assert.ok(html.includes("&lt;script&gt;alert(1)&lt;/script&gt;"));
+  assert.match(html, /Content-Security-Policy/);
   assert.match(html, /Send to VS Code Chat/);
+});
+
+test("loadMergedConfig merges settings with defaults", () => {
+  const merged = core.loadMergedConfig({ mode: "coach", scoreThreshold: 80, alwaysIncludeRules: ["Rule 1"] });
+  assert.equal(merged.mode, "coach");
+  assert.equal(merged.scoreThreshold, 80);
+  assert.deepEqual(merged.alwaysIncludeRules, ["Rule 1"]);
 });
 
 console.log(`\n${passed} JS tests passed`);

@@ -194,9 +194,16 @@ function openScorecardWebview(draftPrompt) {
         await vscode.env.clipboard.writeText(msg.prompt);
         vscode.window.showInformationMessage("💠 Refract: Copied spectrum prompt to clipboard.");
       } else if (msg.type === "sendToChat" && msg.prompt) {
-        await vscode.commands.executeCommand("workbench.action.chat.open", {
-          query: msg.prompt,
-        });
+        try {
+          await vscode.commands.executeCommand("workbench.action.chat.open", {
+            query: msg.prompt,
+          });
+        } catch (_chatErr) {
+          await vscode.env.clipboard.writeText(msg.prompt);
+          vscode.window.showInformationMessage(
+            "💠 Refract: Copied spectrum prompt to clipboard (paste into Chat)."
+          );
+        }
       }
     });
   } else {
@@ -220,9 +227,31 @@ function openScorecardWebview(draftPrompt) {
  * @param {vscode.CancellationToken} token
  */
 async function executeWithHostChatModel(finalPrompt, request, stream, token) {
-  if (!request.model) {
+  let model = request.model;
+  if (!model && vscode.lm && typeof vscode.lm.selectChatModels === "function") {
+    try {
+      const candidates = await vscode.lm.selectChatModels();
+      if (Array.isArray(candidates) && candidates.length > 0) {
+        model = candidates[0];
+      }
+    } catch (_lmErr) {
+      // Ignore model discovery errors
+    }
+  }
+
+  if (!model) {
     stream.markdown(
-      `\n\n> Copy or click a follow-up spectrum below to run this prompt in your chat session.`
+      `\n\n> *(No active host chat model detected. Copy or click a follow-up spectrum below to execute in your chat session.)*`
+    );
+    return;
+  }
+
+  if (
+    typeof vscode.LanguageModelChatMessage === "undefined" ||
+    typeof vscode.LanguageModelChatMessage.User !== "function"
+  ) {
+    stream.markdown(
+      `\n\n> *(LanguageModelChatMessage API unavailable. Copy or click a follow-up spectrum below.)*`
     );
     return;
   }
@@ -232,7 +261,7 @@ async function executeWithHostChatModel(finalPrompt, request, stream, token) {
   ];
 
   try {
-    const chatResponse = await request.model.sendRequest(messages, {}, token);
+    const chatResponse = await model.sendRequest(messages, {}, token);
     for await (const fragment of chatResponse.text) {
       stream.markdown(fragment);
     }
@@ -248,9 +277,16 @@ async function executeWithHostChatModel(finalPrompt, request, stream, token) {
  * @param {vscode.ExtensionContext} context
  */
 function activate(context) {
-  // Seed initial active file if an editor is open
+  // Seed initial active file and visible editors
   if (vscode.window.activeTextEditor && vscode.window.activeTextEditor.document.uri.scheme === "file") {
     recordRecentFile(vscode.window.activeTextEditor.document.uri.fsPath);
+  }
+  if (Array.isArray(vscode.window.visibleTextEditors)) {
+    for (const ed of vscode.window.visibleTextEditors) {
+      if (ed && ed.document && ed.document.uri.scheme === "file") {
+        recordRecentFile(ed.document.uri.fsPath);
+      }
+    }
   }
 
   // Track editor navigation & saves
@@ -487,9 +523,21 @@ function activate(context) {
           return { metadata: { command: "doctor" } };
         }
 
+        let activeEditorPrompt = "";
+        if (vscode.window.activeTextEditor) {
+          const doc = vscode.window.activeTextEditor.document;
+          const sel = vscode.window.activeTextEditor.selection;
+          if (sel && !sel.isEmpty) {
+            activeEditorPrompt = doc.getText(sel).trim();
+          } else if (doc.uri.scheme === "file") {
+            activeEditorPrompt = `Inspect and optimize ${path.basename(doc.uri.fsPath)}`;
+          }
+        }
+
         const promptText =
           rawPrompt ||
           sessionState.lastAnalyzedDraft ||
+          activeEditorPrompt ||
           "Refactor the current file and resolve any open diagnostics";
         const evaluation = evaluatePrompt(promptText, trajectory);
         const spectrums = synthesizeSpectrums(
@@ -610,14 +658,17 @@ function activate(context) {
           {
             prompt: s.precision.prompt,
             label: "⚡ Execute Precision Spectrum",
+            command: "",
           },
           {
             prompt: s.root_cause.prompt,
             label: "🔬 Execute Root-Cause Spectrum",
+            command: "",
           },
           {
             prompt: s.strict_spec.prompt,
             label: "🛡️ Execute Strict Spec Spectrum",
+            command: "",
           },
         ];
       },
@@ -627,7 +678,12 @@ function activate(context) {
   }
 
   // Register #refract Language Model Tool (vscode.lm.registerTool)
-  if (vscode.lm && typeof vscode.lm.registerTool === "function") {
+  if (
+    vscode.lm &&
+    typeof vscode.lm.registerTool === "function" &&
+    typeof vscode.LanguageModelToolResult === "function" &&
+    typeof vscode.LanguageModelTextPart === "function"
+  ) {
     context.subscriptions.push(
       vscode.lm.registerTool("refract_prompt", {
         async invoke(options, _token) {
