@@ -9,7 +9,7 @@ When you receive an ephemeral message starting with `[REFRACT_INTERCEPT ...]`:
 1. **In `auto-intercept` mode (`[REFRACT_INTERCEPT mode="auto-intercept" ...]`)**:
    - Render the compact collapsible header at the very start of your final user-facing response:
      ```markdown
-     <details><summary>💎 <b>Refracted Prompt</b> (Score: X/100 → Grounded via Spectrum)</summary>
+     <details><summary>💠 <b>Refracted Prompt</b> (Score: X/100 → Grounded via Spectrum)</summary>
 
      > [Upgraded context-grounded prompt]
      </details>

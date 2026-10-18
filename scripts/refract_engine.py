@@ -653,7 +653,7 @@ def build_ephemeral_injection(
         f"- Upgraded Prompt ({rec_spectrum['title']}): {rec_spectrum['prompt']}\n\n"
         f"INSTRUCTION FOR AGENT (Auto-Intercept Mode):\n"
         f"1. At the very top of your response, include a single compact collapsible block:\n"
-        f"   <details><summary>💎 <b>Refracted Prompt</b> (Score: {score}/100 → Grounded via {rec_spectrum['title']})</summary>\n\n"
+        f"   <details><summary>💠 <b>Refracted Prompt</b> (Score: {score}/100 → Grounded via {rec_spectrum['title']})</summary>\n\n"
         f"   > {rec_spectrum['prompt']}\n"
         f"   </details>\n"
         f"2. Immediately execute the Upgraded Prompt thoroughly without asking unnecessary meta-questions."
@@ -727,7 +727,7 @@ def generate_html_scorecard(
         </div>
         <div>
           <div class="flex items-center gap-2">
-            <h2 class="font-semibold text-sm text-[var(--foreground)]">Refract Trajectory Scorecard</h2>
+            <h2 class="font-semibold text-sm text-[var(--foreground)]">💠 Refract Trajectory Scorecard</h2>
             <span class="text-xs px-2 py-0.5 rounded bg-[var(--secondary)] text-[var(--muted-foreground)] font-mono">mode: {html.escape(mode)}</span>
           </div>
           <p class="text-xs text-[var(--muted-foreground)]">{verdict}</p>
@@ -806,6 +806,39 @@ def generate_html_scorecard(
     return output_path
 
 
+def check_environment() -> Dict[str, Any]:
+    """Verifies Python runtime version, required bundle files, and configuration."""
+    py_ver = f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}"
+    py_ok = sys.version_info >= (3, 8)
+    plugin_json_ok = (PLUGIN_ROOT / "plugin.json").exists()
+    hooks_json_ok = (PLUGIN_ROOT / "hooks.json").exists()
+    logo_ok = (PLUGIN_ROOT / "assets" / "logo.svg").exists()
+    rules_ok = (PLUGIN_ROOT / "rules" / "AGENTS.md").exists()
+    skills_ok = all(
+        (PLUGIN_ROOT / "skills" / s / "SKILL.md").exists()
+        for s in ("refract", "refract-check", "refract-mode")
+    )
+    all_ok = py_ok and plugin_json_ok and hooks_json_ok and logo_ok and rules_ok and skills_ok
+    return {
+        "status": "healthy" if all_ok else "error",
+        "pythonVersion": py_ver,
+        "pythonRequirementMet": py_ok,
+        "requiredMinimumPython": "3.8.0",
+        "externalPipDependencies": "None (Python standard library only)",
+        "nodeJsRequiredForAntigravity": False,
+        "nodeJsRequiredForVSCodePhase2": "Node.js >= 18.0.0 (only when building Phase 2 VS Code extension)",
+        "bundleIntegrity": {
+            "pluginJson": plugin_json_ok,
+            "hooksJson": hooks_json_ok,
+            "logoSvg": logo_ok,
+            "rulesAgentsMd": rules_ok,
+            "skills": skills_ok,
+        },
+        "pluginRoot": str(PLUGIN_ROOT),
+        "config": load_config(),
+    }
+
+
 def run_hook_from_stdin() -> int:
     """Entrypoint when invoked by Antigravity's PreInvocation lifecycle hook."""
     raw_stdin = sys.stdin.read().strip()
@@ -876,8 +909,14 @@ def main(argv: Optional[List[str]] = None) -> int:
     parser.add_argument("--set-mode", choices=["auto-intercept", "coach", "slash-only"], help="Update Refract operating mode")
     parser.add_argument("--set-threshold", type=int, help="Update Refract score threshold (0-100)")
     parser.add_argument("--status", action="store_true", help="Print current Refract configuration and status")
+    parser.add_argument("--doctor", action="store_true", help="Check system requirements and bundle integrity")
 
     args = parser.parse_args(argv)
+
+    if args.doctor:
+        report = check_environment()
+        print(json.dumps(report, indent=2))
+        return 0 if report["status"] == "healthy" else 1
 
     if args.set_mode or args.set_threshold is not None:
         updates: Dict[str, Any] = {}

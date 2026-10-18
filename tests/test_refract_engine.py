@@ -253,9 +253,25 @@ class TestRefractEngine(unittest.TestCase):
         )
         self.assertTrue(out_html.exists())
         html_text = out_html.read_text(encoding="utf-8")
-        self.assertIn("Refract Trajectory Scorecard", html_text)
+        self.assertIn("💠 Refract Trajectory Scorecard", html_text)
         self.assertIn("app.ts", html_text)
+
+    def test_environment_doctor_and_prism_header(self) -> None:
+        report = refract_engine.check_environment()
+        self.assertEqual(report["status"], "healthy")
+        self.assertTrue(report["pythonRequirementMet"])
+        self.assertFalse(report["nodeJsRequiredForAntigravity"])
+        self.assertTrue(all(report["bundleIntegrity"].values()))
+
+        traj = {"recent_files": ["/workspace/src/index.py"]}
+        eval_res = refract_engine.evaluate_prompt("fix this", traj)
+        spectrums = refract_engine.synthesize_spectrums("fix this", eval_res, traj)
+        ephemeral = refract_engine.build_ephemeral_injection(
+            "fix this", eval_res, spectrums, traj, "auto-intercept"
+        )
+        self.assertIn("💠 <b>Refracted Prompt</b>", ephemeral)
 
 
 if __name__ == "__main__":
     unittest.main()
+

@@ -1,6 +1,6 @@
 <div align="center">
   <img src="assets/logo.svg" alt="Refract Logo" width="110" height="110" />
-  <h1>💎 Refract</h1>
+  <h1>💠 Refract</h1>
   <p><strong>AI Context & Prompt Trajectory Engine for Google Antigravity & Modern AI Coding Assistants</strong></p>
   <p>
     <em>Stop "prompt fluffing." Start Context & Trajectory Engineering.</em>
@@ -13,7 +13,7 @@
 
 Most prompt extensions treat prompt refinement like copywriting—taking a 6-word developer thought (*"fix the auth bug"*) and inflating it into a 200-word generic essay (*"Act as a 10x Senior Engineer..."*) without knowing your conversation history or codebase.
 
-**Refract** is different. Like an optical prism that takes a diffuse beam of light and refracts it into focused spectrums, Refract inspects your **live conversation trajectory (`transcript.jsonl`)** and **workspace state** in **$<5\text{ms}$** to solve the real reasons coding prompts fail:
+**Refract** is different. Like an optical prism (`💠`) that takes a diffuse beam of light and refracts it into focused spectrums, Refract inspects your **live conversation trajectory (`transcript.jsonl`)** and **workspace state** in **$<5\text{ms}$** to solve the real reasons coding prompts fail:
 
 - 🔗 **Deictic & Pronoun Context Binding**: Resolves shorthand follow-ups (*"do the same for the other handler"*, *"fix that error in this file"*) to the exact files, symbols, and tool outputs from earlier turns.
 - 🛟 **Vibe-Coding Failure Spiral Rescue**: Detects when recent turns have consecutive tool/test errors or frustration prompts (*"still broken"*, *"same error"*) and automatically pivots the agent into **Root-Cause Isolation** instead of blind guessing.
@@ -40,9 +40,34 @@ flowchart LR
     T[("📜 transcript.jsonl\nRecent Files, Commands & Errors")] --> H
     H --> D{"5-Dimension\nTrajectory Score"}
     D -->|"Score >= 72\n(Focused)"| P["🟢 Pass-Through ({})\nZero Overhead"]
-    D -->|"Score < 72\nor Failure Spiral"| R["💎 Refract into 3 Spectrums\n• ⚡ Precision\n• 🔬 Root-Cause\n• 🛡️ Strict Spec"]
+    D -->|"Score < 72\nor Failure Spiral"| R["💠 Refract into 3 Spectrums\n• ⚡ Precision\n• 🔬 Root-Cause\n• 🛡️ Strict Spec"]
     P --> M["🧠 Active Host LLM\nExecutes Task"]
     R -->|"ephemeralMessage"| M
+```
+
+---
+
+## 💻 System Requirements & Pre-Flight Checks
+
+Refract is engineered with **zero external package bloat** and includes built-in pre-flight requirement verification:
+
+| Target Platform | Branch | Required Runtime / Installs | Third-Party Packages Required |
+| :--- | :--- | :--- | :--- |
+| **Google Antigravity** *(Phase 1 — Current)* | `main` / `antigravity-extension` | **Python 3.8+** (pre-installed on macOS/Linux) + **Git** | **Zero `pip` packages!** Uses Python standard library only (`sys`, `os`, `json`, `re`, `pathlib`, `html`, `argparse`, `collections`). **No Node.js or npm required.** |
+| **VS Code Extension** *(Phase 2 — Roadmap)* | `vscode-extension` | **Node.js 18+** & **npm** *(for building/packaging)* + **Python 3.8+** *(shared core engine)* | `@vscode/prompt-tsx` & `@vscode/vsce` (bundled at build time so end-users installing the `.vsix` need zero `npm install`). |
+
+### Automated Pre-Flight Requirement Check
+`./install.sh` automatically verifies your system requirements before installing and alerts you with exact OS-specific install commands if anything is missing. You can also run checks standalone at any time:
+
+```bash
+# Check requirements for Google Antigravity (Python 3.8+, stdlib, git)
+./install.sh --check
+
+# Check requirements for Phase 2 VS Code Extension development (Node.js 18+, npm, Python 3.8+)
+./install.sh --check-vscode
+
+# Run the built-in engine health & bundle integrity doctor
+python3 scripts/refract_engine.py --doctor
 ```
 
 ---
@@ -73,41 +98,49 @@ flowchart LR
 
 | Mode | How It Behaves | Best For |
 | :--- | :--- | :--- |
-| **`auto-intercept`** *(Default)* | Silently grounds diffuse prompts in-flight, renders a compact `<details><summary>💎 Refracted Prompt...</summary></details>` header at the top of the reply, and executes immediately. | Zero-friction daily coding. |
+| **`auto-intercept`** *(Default)* | Silently grounds diffuse prompts in-flight, renders a compact `<details><summary>💠 Refracted Prompt...</summary></details>` header at the top of the reply, and executes immediately. | Zero-friction daily coding. |
 | **`coach`** | Pauses when a prompt scores below threshold (or hits an architectural fork) and lets you pick which spectrum to run with 1 click. | Deliberate architecture & learning prompt engineering. |
 | **`slash-only`** | Disables automatic turn interception; Refract only runs when you explicitly type `/refract` or `/refract-check`. | On-demand diagnostic use only. |
 
 ---
 
-## 💻 System Requirements & Prerequisites
+## 🚀 Installation & Distribution (Google Antigravity)
 
-Refract is designed with **zero bloat** and **zero external packages**:
-
-| Component | Platform | What Needs to Be Installed | External Dependencies / Packages |
-| :--- | :--- | :--- | :--- |
-| **Refract Engine & Plugin** | **Google Antigravity** *(Phase 1 — Current)* | **Python 3.8+** (standard library only) + **Git** | **Zero `pip` packages!** Uses only built-in standard library (`sys`, `os`, `json`, `re`, `pathlib`). |
-| **Refract Extension** | **VS Code** *(Phase 2 — Roadmap)* | **Node.js 18+** & **npm** | Standard VS Code Extension host & `@vscode/prompt-tsx` |
-
-> 💡 **Notice**: For the current Google Antigravity plugin, **you do NOT need Node.js or any npm packages**. As long as your Mac or Linux system has Python 3 installed (standard on macOS), Refract works out of the box in $<5\text{ms}$.
+### Route 1: Antigravity Marketplace (Preferred)
+Once published to the **Google Antigravity Agent Marketplace**:
+1. Open **Google Antigravity** → **Skills & Customizations** (`Plugins`) in the left sidebar.
+2. Switch to the **Marketplace** tab and search for **`Refract`**.
+3. Click **Install** (or ask the agent: *"Install the refract plugin from the marketplace"*).
+4. **Restart Antigravity once** so the Language Server activates the `PreInvocation` hook and `/refract`, `/refract-check`, and `/refract-mode` slash commands.
 
 ---
 
-## 🚀 Installation & Setup (Google Antigravity)
+### Route 2: Standalone Installation (No Marketplace Required)
 
-### Option A: Global Installation (Recommended — Works in All Workspaces)
+#### Option A: Global Machine Install (Works Across All Projects)
 ```bash
 git clone https://github.com/damiththa/Refract.git
 cd Refract
 ./install.sh
 ```
-> **Important**: After installing for the first time, **restart Antigravity once** so the Language Server discovers `~/.gemini/config/plugins/refract` and registers `/refract`, `/refract-check`, and `/refract-mode`.
+This validates your Python 3.8+ environment, installs the plugin bundle to `~/.gemini/config/plugins/refract/`, and runs `--doctor`. **Restart Antigravity once** after your first install.
 
-### Option B: Workspace / Team Installation (Committed to Git)
-Share Refract with your entire team inside any repository:
+#### Option B: Team / Workspace Install (Committed to Git — Zero Local Setup for Teammates)
+Install Refract directly into any project repository so every teammate who opens the repo in Antigravity gets Refract automatically:
 ```bash
 ./install.sh --workspace /path/to/your/repo
 ```
-This installs the plugin into `/path/to/your/repo/.agents/plugins/refract/`, which Antigravity automatically discovers for everyone working in that repository.
+This copies the bundle into `/path/to/your/repo/.agents/plugins/refract/`, which Antigravity auto-discovers with highest workspace priority.
+
+#### Option C: External Path Registration via `.agents/plugins.json`
+If you keep a single local clone of `/path/to/Refract` and want to link it without copying files, add `.agents/plugins.json` (or `~/.gemini/config/plugins.json`):
+```json
+{
+  "entries": [
+    { "path": "/path/to/parent/folder/containing/refract" }
+  ]
+}
+```
 
 ---
 
@@ -125,7 +158,7 @@ This installs the plugin into `/path/to/your/repo/.agents/plugins/refract/`, whi
 ```
 
 ### Project-Specific Overrides (`<your-repo>/.agents/refract.json`)
-You can drop a `.agents/refract.json` file into any project repository to enforce project-specific rules in every refracted prompt:
+Drop a `.agents/refract.json` file into any project repository to enforce project-specific rules in every refracted prompt:
 ```json
 {
   "scoreThreshold": 75,
@@ -138,6 +171,9 @@ You can drop a `.agents/refract.json` file into any project repository to enforc
 
 ### CLI Utility Commands
 ```bash
+# Run environment & bundle integrity doctor
+python3 ~/.gemini/config/plugins/refract/scripts/refract_engine.py --doctor
+
 # Check current mode and configuration
 python3 ~/.gemini/config/plugins/refract/scripts/refract_engine.py --status
 
@@ -149,21 +185,30 @@ python3 ~/.gemini/config/plugins/refract/scripts/refract_engine.py --set-mode sl
 # Adjust the interception score threshold (0-100)
 python3 ~/.gemini/config/plugins/refract/scripts/refract_engine.py --set-threshold 75
 
-# Run the automated unit test suite (9 tests in ~5ms)
+# Run the automated unit test suite (10 tests in ~6ms)
 python3 -m unittest discover -s tests -v
 ```
 
 ---
 
-## 🌿 Repository Branch Structure & Multi-Platform Roadmap
+## 🏛️ Compliance with Official Platform Guidelines
 
-To keep each platform extension clean and modular, this repository uses dedicated platform branches alongside `main`:
+Refract is built strictly to official **Google Antigravity** and **VS Code** extension standards:
+
+- **Antigravity `plugin.json` Schema**: Uses only supported manifest fields (`name`, `displayName`, `version`, `description`, `logo`, `suggestedPrompts`) with a square $256\times256$ high-contrast `assets/logo.svg` containing $>10\%$ safe padding.
+- **Root-Level `hooks.json` with Graceful Fallback**: Placed at the plugin root (`./hooks.json`) as required for native Antigravity plugins, using `python3 ./scripts/refract_engine.py 2>/dev/null || echo '{}'` so even if `python3` is missing on a shared machine, the hook safely passes through `{}` and never blocks a chat turn.
+- **Consolidated `rules/AGENTS.md`**: Uses a single plain-markdown `rules/AGENTS.md` file without YAML frontmatter for deterministic rule deduplication.
+- **VS Code Phase 2 Packaging (`vscode-extension` branch)**: Follows VS Code's `esbuild` single-file bundling guideline so Marketplace `.vsix` users do not need `npm` at runtime, while `./install.sh --check-vscode` validates **Node.js 18+**, **npm**, and **Python 3.8+** for contributors.
+
+---
+
+## 🌿 Repository Branch Structure & Multi-Platform Roadmap
 
 | Branch | Target Platform | Status |
 | :--- | :--- | :--- |
 | **`main`** | Primary release branch & cross-platform documentation | ✅ Active |
 | **`antigravity-extension`** | **Google Antigravity Native Plugin** (`plugin.json`, `hooks.json`, `skills/`, `rules/`) | ✅ Ready for Antigravity Marketplace |
-| **`vscode-extension`** | **VS Code Extension** (`@refract` Chat Participant, `#refractPrompt` LM Tool, `Cmd+Alt+P`) | 🚧 Phase 2 |
+| **`vscode-extension`** | **VS Code Extension** (`@refract` Chat Participant, `#refractPrompt` LM Tool, `Cmd+Alt+P`) | 🚧 Phase 2 (Requires Node.js 18+ & npm) |
 
 ---
 

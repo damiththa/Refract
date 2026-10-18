@@ -15,7 +15,7 @@ When the user invokes `/refract-mode`, help them inspect or switch how Refract i
 1. **`auto-intercept` (Default)**:
    - Passively inspects every turn via the `PreInvocation` hook.
    - Strong prompts (Score $\ge$ threshold) pass through invisibly with zero overhead.
-   - Diffuse follow-ups or failure spirals are automatically grounded using `transcript.jsonl`, shown in a compact `<details><summary>💎 Refracted Prompt...</summary></details>` block at the top of the response, and executed immediately.
+   - Diffuse follow-ups or failure spirals are automatically grounded using `transcript.jsonl`, shown in a compact `<details><summary>💠 Refracted Prompt...</summary></details>` block at the top of the response, and executed immediately.
 2. **`coach`**:
    - When a prompt scores below the threshold or hits an architectural fork, Refract pauses and presents a 1-click `ask_question` modal with the 3 Refracted Spectrums before executing.
 3. **`slash-only`**:
