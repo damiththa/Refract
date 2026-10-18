@@ -79,11 +79,20 @@ flowchart LR
 
 ---
 
-## 🚀 Installation & Setup (Google Antigravity)
+## 💻 System Requirements & Prerequisites
 
-### Prerequisites
-- **Google Antigravity** (Antigravity 2.0 Desktop App, Antigravity IDE, or `agy` CLI)
-- **Python 3.9+** (standard library only; zero `pip` packages required)
+Refract is designed with **zero bloat** and **zero external packages**:
+
+| Component | Platform | What Needs to Be Installed | External Dependencies / Packages |
+| :--- | :--- | :--- | :--- |
+| **Refract Engine & Plugin** | **Google Antigravity** *(Phase 1 — Current)* | **Python 3.8+** (standard library only) + **Git** | **Zero `pip` packages!** Uses only built-in standard library (`sys`, `os`, `json`, `re`, `pathlib`). |
+| **Refract Extension** | **VS Code** *(Phase 2 — Roadmap)* | **Node.js 18+** & **npm** | Standard VS Code Extension host & `@vscode/prompt-tsx` |
+
+> 💡 **Notice**: For the current Google Antigravity plugin, **you do NOT need Node.js or any npm packages**. As long as your Mac or Linux system has Python 3 installed (standard on macOS), Refract works out of the box in $<5\text{ms}$.
+
+---
+
+## 🚀 Installation & Setup (Google Antigravity)
 
 ### Option A: Global Installation (Recommended — Works in All Workspaces)
 ```bash
