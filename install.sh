@@ -113,6 +113,9 @@ mkdir -p "${TARGET_DIR}"
 cp -R "${SCRIPT_DIR}/plugin.json" "${TARGET_DIR}/"
 cp -R "${SCRIPT_DIR}/hooks.json" "${TARGET_DIR}/"
 cp -R "${SCRIPT_DIR}/README.md" "${TARGET_DIR}/"
+if [[ -f "${SCRIPT_DIR}/LICENSE" ]]; then
+  cp -R "${SCRIPT_DIR}/LICENSE" "${TARGET_DIR}/"
+fi
 cp -R "${SCRIPT_DIR}/assets" "${TARGET_DIR}/"
 cp -R "${SCRIPT_DIR}/rules" "${TARGET_DIR}/"
 cp -R "${SCRIPT_DIR}/scripts" "${TARGET_DIR}/"
