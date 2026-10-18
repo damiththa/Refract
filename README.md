@@ -36,24 +36,11 @@ Most prompt extensions treat prompt refinement like copywriting—taking a 6-wor
 
 ### 🔒 Data Privacy & LLM Boundary Diagram
 
-```mermaid
-flowchart TB
-    subgraph LOCAL["🔒 100% Local On-Device Boundary (Zero External Network Calls by Refract)"]
-        direction LR
-        U["👤 Developer Prompt\n'@refract fix the error in this file'"] --> E["⚡ Local Refract Engine (<2ms)\nsrc/refractCore.js\nPure Local JS (No LLM / No Network)"]
-        IDE[("💻 Live VS Code State\n• Active Editor Files\n• Problems Pane Diagnostics\n• Terminal Exit Codes\n• Chat Turn History")] --> E
-        E --> D{"5-Dimension\nTrajectory Score"}
-        D -->|"Score >= 72\n(Focused)"| P["🟢 Pass-Through\nUntouched Prompt"]
-        D -->|"Score < 72\nor Failure Spiral"| R["💠 Grounded into 3 Spectrums\n• ⚡ Precision\n• 🔬 Root-Cause\n• 🛡️ Strict Spec"]
-    end
-
-    subgraph HOST["🧠 Your Existing VS Code Chat Session (vscode.lm)"]
-        M["Active Host LLM You Selected in VS Code\n(Copilot / Claude / Gemini / GPT)\nExecutes the Upgraded Task Directly"]
-    end
-
-    P --> M
-    R -->|"Direct Host Model Stream\nor 1-Click Follow-Up"| M
-```
+<p align="center">
+  <a href="https://github.com/damiththa/Refract">
+    <img src="https://raw.githubusercontent.com/damiththa/Refract/vscode-extension/assets/privacy-diagram.png" alt="Refract Architecture & Data Privacy Diagram" width="800" />
+  </a>
+</p>
 
 ---
 

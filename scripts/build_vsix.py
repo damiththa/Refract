@@ -137,6 +137,7 @@ def package_vsix(output_dir: Path = ROOT_DIR) -> Path:
         (ROOT_DIR / "CHANGELOG.md", "extension/CHANGELOG.md"),
         (ROOT_DIR / "LICENSE", "extension/LICENSE.txt"),
         (ROOT_DIR / "assets" / "logo.png", "extension/assets/logo.png"),
+        (ROOT_DIR / "assets" / "privacy-diagram.png", "extension/assets/privacy-diagram.png"),
         (ROOT_DIR / "src" / "extension.js", "extension/src/extension.js"),
         (ROOT_DIR / "src" / "refractCore.js", "extension/src/refractCore.js"),
     ]
