@@ -3,7 +3,7 @@
 
 Operates in two modes:
 1. PreInvocation Lifecycle Hook (stdin JSON -> stdout injectSteps JSON)
-2. CLI Utility (--analyze, --html-widget, --set-mode, --status) for /refract skills.
+2. CLI Utility (--analyze, --html-widget, --set-mode, --set-threshold, --status) for /refract skills.
 """
 
 from __future__ import annotations
@@ -27,6 +27,7 @@ DEFAULT_CONFIG: Dict[str, Any] = {
     "scoreThreshold": 72,
     "rescueFailureSpirals": True,
     "maxTranscriptTurns": 12,
+    "alwaysIncludeRules": [],
 }
 
 # Short conversational confirmations that should NEVER be intercepted
@@ -80,6 +81,11 @@ ACTION_VERBS = {
     "convert",
     "replace",
     "design",
+    "push",
+    "commit",
+    "branch",
+    "document",
+    "summarize",
 }
 
 VAGUE_PHRASES = [
@@ -145,7 +151,8 @@ ARCHITECTURAL_FORK_PATTERNS = [
 ]
 
 
-def load_config(config_path: Path = CONFIG_PATH) -> Dict[str, Any]:
+def load_config(config_path: Path = CONFIG_PATH, workspace_paths: Optional[List[str]] = None) -> Dict[str, Any]:
+    """Loads global plugin config and merges optional workspace .agents/refract.json overrides."""
     cfg = dict(DEFAULT_CONFIG)
     if config_path.exists():
         try:
@@ -154,6 +161,17 @@ def load_config(config_path: Path = CONFIG_PATH) -> Dict[str, Any]:
                 cfg.update(loaded)
         except Exception:
             pass
+
+    if workspace_paths:
+        for wp in workspace_paths:
+            ws_cfg_path = Path(wp).expanduser() / ".agents" / "refract.json"
+            if ws_cfg_path.exists():
+                try:
+                    ws_loaded = json.loads(ws_cfg_path.read_text(encoding="utf-8"))
+                    if isinstance(ws_loaded, dict):
+                        cfg.update(ws_loaded)
+                except Exception:
+                    pass
     return cfg
 
 
@@ -190,6 +208,18 @@ def extract_user_request(raw_content: str) -> str:
     return raw_content.strip()
 
 
+def is_internal_artifact_path(file_path: str) -> bool:
+    """Filters out Antigravity internal brain/system/builtin files from workspace file binding."""
+    if not file_path:
+        return True
+    ignored_segments = (
+        "/.system_generated/",
+        "/.gemini/antigravity/brain/",
+        "/.gemini/antigravity/builtin/",
+    )
+    return any(seg in file_path for seg in ignored_segments)
+
+
 def parse_transcript(transcript_path: Optional[str], max_turns: int = 12) -> Dict[str, Any]:
     """Parses the tail of Antigravity's transcript.jsonl for trajectory intelligence."""
     trajectory: Dict[str, Any] = {
@@ -198,6 +228,7 @@ def parse_transcript(transcript_path: Optional[str], max_turns: int = 12) -> Dic
         "recent_files": [],
         "recent_commands": [],
         "recent_errors": [],
+        "active_errors": [],
         "consecutive_errors": 0,
         "turn_count": 0,
         "last_step_type": "",
@@ -218,7 +249,8 @@ def parse_transcript(transcript_path: Optional[str], max_turns: int = 12) -> Dic
     user_prompts: List[str] = []
     files_seen: List[str] = []
     commands_seen: List[str] = []
-    errors_seen: List[str] = []
+    all_errors_seen: List[str] = []
+    active_errors: List[str] = []
     consecutive_errors = 0
 
     for line in recent_lines:
@@ -248,12 +280,15 @@ def parse_transcript(transcript_path: Optional[str], max_turns: int = 12) -> Dic
                 if tc_name in {"view_file", "replace_file_content", "write_to_file", "multi_replace_file_content"}:
                     raw_path = args.get("AbsolutePath") or args.get("TargetFile") or ""
                     cleaned_path = clean_json_arg(raw_path)
-                    if cleaned_path and "/.system_generated/" not in cleaned_path:
-                        if cleaned_path not in files_seen:
-                            files_seen.append(cleaned_path)
+                    if cleaned_path and not is_internal_artifact_path(cleaned_path):
+                        if cleaned_path in files_seen:
+                            files_seen.remove(cleaned_path)
+                        files_seen.append(cleaned_path)
                 elif tc_name == "run_command":
                     cmd = clean_json_arg(args.get("CommandLine", ""))
-                    if cmd and "refract_engine.py" not in cmd and cmd not in commands_seen:
+                    if cmd and "refract_engine.py" not in cmd:
+                        if cmd in commands_seen:
+                            commands_seen.remove(cmd)
                         commands_seen.append(cmd)
 
         elif step_type == "GENERIC":
@@ -265,9 +300,12 @@ def parse_transcript(transcript_path: Optional[str], max_turns: int = 12) -> Dic
             if is_err:
                 consecutive_errors += 1
                 snippet = content.strip().splitlines()[-1][:160] if content.strip() else "Tool execution failed"
-                errors_seen.append(snippet)
+                all_errors_seen.append(snippet)
+                active_errors.append(snippet)
             elif "The command exited with code 0" in content:
+                # A subsequent command succeeded, clearing resolved error state
                 consecutive_errors = 0
+                active_errors.clear()
 
     trajectory["turn_count"] = len(user_prompts)
     if user_prompts:
@@ -276,12 +314,18 @@ def parse_transcript(transcript_path: Optional[str], max_turns: int = 12) -> Dic
 
     trajectory["recent_files"] = files_seen[-6:]
     trajectory["recent_commands"] = commands_seen[-4:]
-    trajectory["recent_errors"] = errors_seen[-3:]
+    trajectory["recent_errors"] = all_errors_seen[-3:]
+    trajectory["active_errors"] = active_errors[-2:]
     trajectory["consecutive_errors"] = consecutive_errors
     return trajectory
 
 
-def should_bypass_hook(hook_input: Dict[str, Any], prompt_text: str, config: Dict[str, Any]) -> Tuple[bool, str]:
+def should_bypass_hook(
+    hook_input: Dict[str, Any],
+    prompt_text: str,
+    config: Dict[str, Any],
+    trajectory: Optional[Dict[str, Any]] = None,
+) -> Tuple[bool, str]:
     """Determines if PreInvocation should immediately return {} without interfering."""
     if config.get("mode") == "slash-only":
         return True, "Mode is slash-only"
@@ -289,6 +333,11 @@ def should_bypass_hook(hook_input: Dict[str, Any], prompt_text: str, config: Dic
     invocation_num = hook_input.get("invocationNum", 1)
     if isinstance(invocation_num, int) and invocation_num > 1:
         return True, "Mid-turn tool loop (invocationNum > 1)"
+
+    if trajectory:
+        last_step = trajectory.get("last_step_type", "")
+        if last_step and last_step != "USER_INPUT":
+            return True, f"Mid-turn tool continuation (last_step_type={last_step})"
 
     cleaned = prompt_text.strip()
     if not cleaned:
@@ -314,6 +363,7 @@ def evaluate_prompt(prompt_text: str, trajectory: Dict[str, Any]) -> Dict[str, A
     word_count = len(words)
 
     recent_files: List[str] = trajectory.get("recent_files", [])
+    active_errors: List[str] = trajectory.get("active_errors", [])
     recent_errors: List[str] = trajectory.get("recent_errors", [])
     prior_prompts: List[str] = trajectory.get("prior_user_prompts", [])
     consecutive_errors: int = trajectory.get("consecutive_errors", 0)
@@ -329,12 +379,15 @@ def evaluate_prompt(prompt_text: str, trajectory: Dict[str, Any]) -> Dict[str, A
     has_action_verb = any(w in ACTION_VERBS for w in words)
     has_vague_phrase = any(re.search(pat, lower) for pat in VAGUE_PHRASES)
     has_code_ident = bool(
-        re.search(r"[`][\w./-]+[`]|\b\w+\.(?:ts|tsx|js|jsx|py|go|rs|java|json|md|css|html|sh)\b|\b[a-z]+[A-Z]\w+\b|\b\w+_\w+\b", text)
+        re.search(
+            r"[`][\w./-]+[`]|\b\w+\.(?:ts|tsx|js|jsx|py|go|rs|java|json|md|css|html|sh|yml|yaml)\b|\b[a-z]+[A-Z]\w+\b|\b\w+_\w+\b",
+            text,
+        )
     )
 
-    clarity = 12
+    clarity = 13
     if has_action_verb:
-        clarity += 7
+        clarity += 6
     if has_code_ident:
         clarity += 6
     if word_count < 5:
@@ -353,26 +406,30 @@ def evaluate_prompt(prompt_text: str, trajectory: Dict[str, Any]) -> Dict[str, A
         if m:
             ungrounded_refs.append(f"'{m.group(0)}' ({ref_kind})")
 
-    context_score = 16
+    context_score = 17
     if has_code_ident or "@" in text or "#" in text:
-        context_score += 8
+        context_score += 7
     if ungrounded_refs and not has_code_ident:
-        context_score -= 10
+        context_score -= 11
         if recent_files:
             bound_names = [Path(f).name for f in recent_files[-3:]]
             bound_context["files"] = recent_files[-3:]
             gaps.append(
-                f"Contains ungrounded reference ({', '.join(ungrounded_refs[:2])}); auto-bound to recent session files: {', '.join(bound_names)}."
+                f"Contains ungrounded reference ({', '.join(ungrounded_refs[:2])}); auto-bound to recent project files: {', '.join(bound_names)}."
             )
         else:
             gaps.append(
                 f"Contains ambiguous reference ({', '.join(ungrounded_refs[:2])}) without naming a file, function, or component."
             )
-    elif recent_files and not has_code_ident and word_count < 15:
+    elif recent_files and ungrounded_refs:
         bound_context["files"] = recent_files[-2:]
 
-    if recent_errors and ("error" in lower or "bug" in lower or "fix" in lower or "fail" in lower):
-        bound_context["errors"] = recent_errors[-2:]
+    # Only bind errors when there is an active unresolved error OR the user explicitly mentions an error/bug/failure
+    mentions_error = bool(re.search(r"\b(?:error|bug|exception|fail\w*|broken|crash\w*|issue)\b", lower))
+    if active_errors:
+        bound_context["errors"] = active_errors[-2:]
+    elif mentions_error and recent_errors:
+        bound_context["errors"] = recent_errors[-1:]
 
     context_score = max(4, min(25, context_score))
 
@@ -401,25 +458,25 @@ def evaluate_prompt(prompt_text: str, trajectory: Dict[str, Any]) -> Dict[str, A
             break
 
     has_constraints = bool(
-        re.search(r"\b(?:without|do\s+not|don'?t|must|only|preserve|keep|ensure|avoid|strictly|compatibility)\b", lower)
+        re.search(r"\b(?:without|do\s+not|don'?t|must|only|preserve|keep|ensure|avoid|strictly|compatibility|branch)\b", lower)
     )
-    constraints_score = 8
+    constraints_score = 9
     if has_constraints:
-        constraints_score += 6
+        constraints_score += 5
     if word_count >= 18:
         constraints_score += 3
     if detected_fork:
-        constraints_score -= 5
+        constraints_score -= 6
     constraints_score = max(3, min(15, constraints_score))
 
     # --- 5. Verification / Definition of Done (0 - 15) ---
     has_verification = bool(
-        re.search(r"\b(?:test|tests|unit\s+test|verify|check|assert|compile|build|lint|expect|output|return)\b", lower)
+        re.search(r"\b(?:test|tests|unit\s+test|verify|check|assert|compile|build|lint|expect|output|return|push|commit|readme)\b", lower)
     )
-    verification_score = 7
+    verification_score = 8
     if has_verification:
-        verification_score += 7
-    elif word_count >= 20:
+        verification_score += 6
+    elif word_count >= 22:
         verification_score += 3
     else:
         gaps.append("No explicit verification or Definition-of-Done criteria specified.")
@@ -430,7 +487,7 @@ def evaluate_prompt(prompt_text: str, trajectory: Dict[str, Any]) -> Dict[str, A
     if overall >= 80 and not is_failure_spiral and not detected_fork:
         verdict = "Focused & Execution-Ready"
         badge = "🟢"
-    elif overall >= 60 and not is_failure_spiral:
+    elif overall >= 60 and not is_failure_spiral and not detected_fork:
         verdict = "Diffuse — Benefits from Context Grounding"
         badge = "🟡"
     else:
@@ -456,35 +513,49 @@ def evaluate_prompt(prompt_text: str, trajectory: Dict[str, Any]) -> Dict[str, A
 
 
 def synthesize_spectrums(
-    prompt_text: str, evaluation: Dict[str, Any], trajectory: Dict[str, Any]
+    prompt_text: str,
+    evaluation: Dict[str, Any],
+    trajectory: Dict[str, Any],
+    custom_rules: Optional[List[str]] = None,
 ) -> Dict[str, Dict[str, str]]:
     """Refracts the user's raw prompt into 3 actionable, non-fluffy engineering spectrums."""
     raw = prompt_text.strip()
-    recent_files: List[str] = trajectory.get("recent_files", [])
+    bound_files: List[str] = evaluation.get("boundContext", {}).get("files", [])
+    recent_files: List[str] = bound_files or trajectory.get("recent_files", [])
     recent_commands: List[str] = trajectory.get("recent_commands", [])
-    recent_errors: List[str] = trajectory.get("recent_errors", [])
+    bound_errors: List[str] = evaluation.get("boundContext", {}).get("errors", [])
     prior_prompts: List[str] = trajectory.get("prior_user_prompts", [])
 
     file_clause = ""
     if recent_files:
         short_files = ", ".join(f"`{Path(p).name}` ({p})" for p in recent_files[-3:])
-        file_clause = f" Focus specifically on {short_files}."
+        file_clause = f" Focus on {short_files}."
 
     prior_clause = ""
     if prior_prompts and len(raw.split()) < 14:
-        last_goal = prior_prompts[-1].replace("\n", " ")[:140]
-        prior_clause = f" Building directly on our previous step (\"{last_goal}\"),"
+        last_goal = prior_prompts[-1].replace("\n", " ")[:120]
+        prior_clause = f"Building directly on our previous step (\"{last_goal}\"), "
 
     error_clause = ""
-    if recent_errors:
-        err_snip = recent_errors[-1]
-        error_clause = f" Address the recent failure (`{err_snip}`)."
+    if bound_errors:
+        err_snip = bound_errors[-1]
+        error_clause = f" Resolve the active error (`{err_snip}`)."
 
-    test_cmd = recent_commands[-1] if recent_commands else "the project's test/build command"
+    rules_clause = ""
+    if custom_rules:
+        joined_rules = "; ".join(r.strip() for r in custom_rules if r.strip())
+        if joined_rules:
+            rules_clause = f" Adhere to project rules: {joined_rules}."
+
+    test_cmd = "the project's test suite"
+    for cmd in reversed(recent_commands):
+        if any(k in cmd for k in ("test", "pytest", "unittest", "npm", "cargo", "go test", "tsc")):
+            test_cmd = cmd
+            break
 
     # Spectrum 1: Precision (Direct, Context-Grounded)
     precision_prompt = (
-        f"{prior_clause} {raw}.{file_clause}{error_clause} "
+        f"{prior_clause}{raw}.{file_clause}{error_clause}{rules_clause} "
         f"Preserve existing public interfaces and unrelated logic, and summarize the exact changes made."
     ).strip()
     precision_prompt = re.sub(r"\s+", " ", precision_prompt).replace("..", ".")
@@ -494,7 +565,7 @@ def synthesize_spectrums(
         f"Before making any code edits for \"{raw}\",{file_clause}{error_clause} "
         f"1) Identify the top 2 root-cause hypotheses based on our conversation history and current file state, "
         f"2) Verify which hypothesis is actually occurring by inspecting the relevant code/logs, and "
-        f"3) Apply a targeted fix and verify it."
+        f"3) Apply a targeted fix and verify it.{rules_clause}"
     ).strip()
     root_cause_prompt = re.sub(r"\s+", " ", root_cause_prompt)
 
@@ -506,9 +577,9 @@ def synthesize_spectrums(
         else ""
     )
     strict_prompt = (
-        f"Execute task: \"{raw}\".{file_clause}{fork_note} "
+        f"Execute task: \"{raw}\".{file_clause}{fork_note}{rules_clause} "
         f"Constraints: Keep the diff minimal and well-typed, handle edge/error cases explicitly, "
-        f"and verify the implementation by running `{test_cmd}` (or adding a unit test) before concluding."
+        f"and verify the implementation by running `{test_cmd}` before concluding."
     ).strip()
     strict_prompt = re.sub(r"\s+", " ", strict_prompt)
 
@@ -520,7 +591,7 @@ def synthesize_spectrums(
             "reason": (
                 "Failure spiral / debugging loop detected — Root-Cause Isolation prevents blind guessing."
                 if recommended == "root_cause"
-                else "Direct context-bound execution grounded in active conversation files."
+                else "Direct context-bound execution grounded in active workspace files."
             ),
         },
         "precision": {
@@ -748,12 +819,13 @@ def run_hook_from_stdin() -> int:
         print("{}")
         return 0
 
-    config = load_config()
+    workspace_paths = hook_input.get("workspacePaths") or []
+    config = load_config(workspace_paths=workspace_paths)
     transcript_path = hook_input.get("transcriptPath")
     trajectory = parse_transcript(transcript_path, max_turns=int(config.get("maxTranscriptTurns", 12)))
     prompt_text = trajectory.get("latest_user_prompt", "")
 
-    bypass, _ = should_bypass_hook(hook_input, prompt_text, config)
+    bypass, _ = should_bypass_hook(hook_input, prompt_text, config, trajectory)
     if bypass:
         print("{}")
         return 0
@@ -762,7 +834,7 @@ def run_hook_from_stdin() -> int:
     threshold = int(config.get("scoreThreshold", 72))
     rescue_spirals = bool(config.get("rescueFailureSpirals", True))
 
-    needs_refraction = (
+    needs_refraction = bool(evaluation["gaps"]) and (
         evaluation["overallScore"] < threshold
         or (rescue_spirals and evaluation["isFailureSpiral"])
         or bool(evaluation.get("architecturalFork"))
@@ -772,7 +844,12 @@ def run_hook_from_stdin() -> int:
         print("{}")
         return 0
 
-    spectrums = synthesize_spectrums(prompt_text, evaluation, trajectory)
+    spectrums = synthesize_spectrums(
+        prompt_text,
+        evaluation,
+        trajectory,
+        custom_rules=config.get("alwaysIncludeRules") or [],
+    )
     ephemeral = build_ephemeral_injection(
         prompt_text=prompt_text,
         evaluation=evaluation,
@@ -824,7 +901,12 @@ def main(argv: Optional[List[str]] = None) -> int:
         if not draft:
             draft = "Refactor the current module and fix any failing cases"
         evaluation = evaluate_prompt(draft, trajectory)
-        spectrums = synthesize_spectrums(draft, evaluation, trajectory)
+        spectrums = synthesize_spectrums(
+            draft,
+            evaluation,
+            trajectory,
+            custom_rules=cfg.get("alwaysIncludeRules") or [],
+        )
 
         result: Dict[str, Any] = {
             "draft": draft,
@@ -834,6 +916,7 @@ def main(argv: Optional[List[str]] = None) -> int:
                 "recentFiles": trajectory.get("recent_files", []),
                 "recentCommands": trajectory.get("recent_commands", []),
                 "recentErrors": trajectory.get("recent_errors", []),
+                "activeErrors": trajectory.get("active_errors", []),
                 "consecutiveErrors": trajectory.get("consecutive_errors", 0),
             },
             "evaluation": evaluation,
