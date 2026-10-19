@@ -3,7 +3,7 @@
   "displayName": "Refract — AI Context & Prompt Trajectory Engine",
   "description": "Trajectory-aware AI prompt refiner & failure-spiral rescuer for VS Code Chat & Copilot. Grounds vague prompts in active files, compiler diagnostics, and terminal errors in <5ms (100% local, zero extra token cost).",
   "version": "1.0.0",
-  "publisher": "damiththa",
+  "publisher": "MDMS",
   "license": "MIT",
   "icon": "assets/logo.png",
   "engines": {

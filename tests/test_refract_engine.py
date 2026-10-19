@@ -278,7 +278,7 @@ class TestRefractEngine(unittest.TestCase):
         self.assertTrue(pkg_path.exists())
         pkg = json.loads(pkg_path.read_text(encoding="utf-8"))
         self.assertEqual(pkg["name"], "refract")
-        self.assertEqual(pkg["publisher"], "damiththa")
+        self.assertEqual(pkg["publisher"], "MDMS")
         self.assertEqual(pkg["icon"], "assets/logo.png")
         self.assertEqual(pkg["main"], "./src/extension.js")
         self.assertIn("chatParticipants", pkg["contributes"])
@@ -304,7 +304,7 @@ class TestRefractEngine(unittest.TestCase):
             self.assertIn("extension/src/extension.js", names)
             self.assertIn("extension/src/refractCore.js", names)
             manifest_xml = zf.read("extension.vsixmanifest").decode("utf-8")
-            self.assertIn('Publisher="damiththa"', manifest_xml)
+            self.assertIn('Publisher="MDMS"', manifest_xml)
             self.assertIn('Id="refract"', manifest_xml)
 
 

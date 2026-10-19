@@ -8,4 +8,5 @@ __pycache__/
 
 # VS Code build output
 *.vsix
+!refract-1.0.0.vsix
 node_modules/
