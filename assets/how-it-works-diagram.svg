@@ -1,0 +1,185 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 640" width="1600" height="640">
+  <defs>
+    <!-- Gradients -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0a0e17" />
+      <stop offset="50%" stop-color="#0f172a" />
+      <stop offset="100%" stop-color="#0a0e17" />
+    </linearGradient>
+
+    <linearGradient id="cardGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1e293b" stop-opacity="0.9" />
+      <stop offset="100%" stop-color="#0f172a" stop-opacity="0.9" />
+    </linearGradient>
+
+    <linearGradient id="prismGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8" />
+      <stop offset="35%" stop-color="#818cf8" />
+      <stop offset="70%" stop-color="#c084fc" />
+      <stop offset="100%" stop-color="#f472b6" />
+    </linearGradient>
+
+    <linearGradient id="step1Grad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#38bdf8" />
+      <stop offset="100%" stop-color="#0284c7" />
+    </linearGradient>
+
+    <linearGradient id="step2Grad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#a855f7" />
+      <stop offset="100%" stop-color="#7c3aed" />
+    </linearGradient>
+
+    <linearGradient id="step3Grad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#34d399" />
+      <stop offset="100%" stop-color="#059669" />
+    </linearGradient>
+
+    <!-- Drop Shadows -->
+    <filter id="cardShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="8" stdDeviation="16" flood-color="#000000" flood-opacity="0.45" />
+    </filter>
+    <filter id="glowPrism" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="8" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <style>
+    .font-base { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+    .font-mono { font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace; }
+  </style>
+
+  <!-- Canvas Background -->
+  <rect width="1600" height="640" rx="16" fill="url(#bgGrad)" />
+  <rect width="1598" height="638" x="1" y="1" rx="15" fill="none" stroke="#334155" stroke-width="1.5" stroke-opacity="0.6" />
+
+  <!-- Background Decorative Grid Lines -->
+  <path d="M 0 100 L 1600 100 M 0 540 L 1600 540" stroke="#1e293b" stroke-width="1" stroke-opacity="0.4" />
+
+  <!-- HEADER -->
+  <g transform="translate(80, 52)">
+    <rect x="-8" y="-6" width="36" height="36" rx="8" fill="url(#prismGrad)" opacity="0.2" />
+    <text x="10" y="22" font-size="28" font-weight="800" fill="#f8fafc" class="font-base" letter-spacing="-0.5px">HOW REFRACT WORKS IN 3 STEPS</text>
+    <text x="510" y="21" font-size="14" font-weight="500" fill="#94a3b8" class="font-base">Transforming vague 4-word thoughts into surgical Turn-1 AI solutions in &lt;2ms</text>
+  </g>
+
+  <!-- ==================== STEP 1 CARD ==================== -->
+  <g transform="translate(80, 110)">
+    <!-- Card Base -->
+    <rect width="440" height="470" rx="14" fill="url(#cardGrad)" stroke="#334155" stroke-width="1.5" filter="url(#cardShadow)" />
+    
+    <!-- Step Badge -->
+    <rect x="24" y="24" width="80" height="26" rx="6" fill="#0284c7" fill-opacity="0.25" stroke="#38bdf8" stroke-width="1" />
+    <text x="64" y="41" font-size="12" font-weight="700" fill="#38bdf8" text-anchor="middle" class="font-mono">STEP 1</text>
+    
+    <text x="116" y="42" font-size="18" font-weight="700" fill="#f8fafc" class="font-base">You Write Naturally</text>
+    <text x="24" y="80" font-size="13" font-weight="400" fill="#94a3b8" class="font-base">In VS Code Chat (@refract) or press Cmd+Alt+P:</text>
+
+    <!-- User Prompt Bubble -->
+    <rect x="24" y="102" width="392" height="92" rx="10" fill="#0f172a" stroke="#38bdf8" stroke-width="1.5" />
+    <circle cx="48" cy="130" r="10" fill="#38bdf8" fill-opacity="0.2" />
+    <text x="48" y="134" font-size="11" text-anchor="middle" fill="#38bdf8" class="font-mono">👤</text>
+    <text x="68" y="134" font-size="14" font-weight="600" fill="#f1f5f9" class="font-mono">@refract fix the error in this file</text>
+    <text x="68" y="166" font-size="12" fill="#64748b" class="font-base">6 words • Vague • No line numbers or error text</text>
+
+    <!-- The Problem Box -->
+    <rect x="24" y="218" width="392" height="236" rx="10" fill="#1e1b4b" fill-opacity="0.3" stroke="#f43f5e" stroke-width="1" stroke-opacity="0.4" />
+    <text x="44" y="246" font-size="13" font-weight="700" fill="#fb7185" class="font-base">❌ What standard Copilot sees:</text>
+    
+    <text x="44" y="280" font-size="13" fill="#cbd5e1" class="font-base">• Has to <tspan font-weight="700" fill="#f43f5e">guess</tspan> which file you are looking at</text>
+    <text x="44" y="312" font-size="13" fill="#cbd5e1" class="font-base">• Blind to red squiggles in the Problems tab</text>
+    <text x="44" y="344" font-size="13" fill="#cbd5e1" class="font-base">• Doesn't know your terminal just crashed</text>
+    
+    <rect x="44" y="372" width="352" height="60" rx="8" fill="#4c0519" fill-opacity="0.4" stroke="#f43f5e" stroke-width="1" stroke-dasharray="4 4" />
+    <text x="56" y="396" font-size="12" font-weight="600" fill="#fda4af" class="font-base">Result: Hallucinates imports &amp; breaks code</text>
+    <text x="56" y="416" font-size="11" fill="#f43f5e" class="font-base">➔ You reply: "Still broken!" (Failure Spiral starts)</text>
+  </g>
+
+  <!-- ARROW 1 -> 2 -->
+  <g transform="translate(530, 320)">
+    <circle cx="25" cy="0" r="18" fill="#1e293b" stroke="#334155" stroke-width="1.5" />
+    <path d="M 18 -6 L 28 0 L 18 6" fill="none" stroke="#38bdf8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+  </g>
+
+  <!-- ==================== STEP 2 CARD ==================== -->
+  <g transform="translate(580, 110)">
+    <!-- Card Base -->
+    <rect width="440" height="470" rx="14" fill="url(#cardGrad)" stroke="#a855f7" stroke-width="1.5" filter="url(#cardShadow)" />
+    
+    <!-- Step Badge -->
+    <rect x="24" y="24" width="80" height="26" rx="6" fill="#7c3aed" fill-opacity="0.25" stroke="#c084fc" stroke-width="1" />
+    <text x="64" y="41" font-size="12" font-weight="700" fill="#c084fc" text-anchor="middle" class="font-mono">STEP 2</text>
+    
+    <text x="116" y="42" font-size="18" font-weight="700" fill="#f8fafc" class="font-base">Refract Auto-Grounds</text>
+    <text x="24" y="80" font-size="13" font-weight="400" fill="#94a3b8" class="font-base">100% on-device in &lt;2ms (No external network calls):</text>
+
+    <!-- Context Auto-Harvest Box -->
+    <rect x="24" y="102" width="392" height="150" rx="10" fill="#0f172a" stroke="#334155" stroke-width="1" />
+    <text x="40" y="128" font-size="12" font-weight="700" fill="#c084fc" class="font-base">⚡ Live IDE Context Auto-Bound:</text>
+    
+    <rect x="40" y="140" width="360" height="28" rx="6" fill="#1e293b" />
+    <text x="50" y="158" font-size="11" fill="#38bdf8" class="font-mono">📄 Active File: src/auth.ts (Line 42)</text>
+    
+    <rect x="40" y="174" width="360" height="28" rx="6" fill="#1e293b" />
+    <text x="50" y="192" font-size="11" fill="#f43f5e" class="font-mono">🔴 Problems Tab: TypeError: user is undefined</text>
+    
+    <rect x="40" y="208" width="360" height="28" rx="6" fill="#1e293b" />
+    <text x="50" y="226" font-size="11" fill="#34d399" class="font-mono">🧪 Test Command: npm test -- auth.test.ts</text>
+
+    <!-- Prism Evaluation Box -->
+    <rect x="24" y="266" width="392" height="188" rx="10" fill="#1e1b4b" fill-opacity="0.35" stroke="#a855f7" stroke-width="1" />
+    <text x="40" y="292" font-size="12" font-weight="700" fill="#e9d5ff" class="font-base">💠 5-Dimension Trajectory Scoring &amp; Rescue:</text>
+    
+    <text x="40" y="322" font-size="12" fill="#cbd5e1" class="font-base">✓ Binds pronouns ("this file" ➔ auth.ts)</text>
+    <text x="40" y="348" font-size="12" fill="#cbd5e1" class="font-base">✓ Detects Failure Spirals &amp; stops blind guessing</text>
+    <text x="40" y="374" font-size="12" fill="#cbd5e1" class="font-base">✓ Flags Architectural Forks before writing code</text>
+    
+    <rect x="40" y="394" width="360" height="44" rx="8" fill="#581c87" fill-opacity="0.4" stroke="#c084fc" stroke-width="1" />
+    <text x="50" y="420" font-size="12" font-weight="700" fill="#f3e8ff" class="font-base">Synthesizes 3 Grounded Execution Spectrums</text>
+  </g>
+
+  <!-- ARROW 2 -> 3 -->
+  <g transform="translate(1030, 320)">
+    <circle cx="25" cy="0" r="18" fill="#1e293b" stroke="#334155" stroke-width="1.5" />
+    <path d="M 18 -6 L 28 0 L 18 6" fill="none" stroke="#a855f7" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+  </g>
+
+  <!-- ==================== STEP 3 CARD ==================== -->
+  <g transform="translate(1080, 110)">
+    <!-- Card Base -->
+    <rect width="440" height="470" rx="14" fill="url(#cardGrad)" stroke="#10b981" stroke-width="1.5" filter="url(#cardShadow)" />
+    
+    <!-- Step Badge -->
+    <rect x="24" y="24" width="80" height="26" rx="6" fill="#059669" fill-opacity="0.25" stroke="#34d399" stroke-width="1" />
+    <text x="64" y="41" font-size="12" font-weight="700" fill="#34d399" text-anchor="middle" class="font-mono">STEP 3</text>
+    
+    <text x="116" y="42" font-size="18" font-weight="700" fill="#f8fafc" class="font-base">Turn-1 AI Success</text>
+    <text x="24" y="80" font-size="13" font-weight="400" fill="#94a3b8" class="font-base">Streams directly with your active VS Code model:</text>
+
+    <!-- 3 Spectrums Output Preview -->
+    <g transform="translate(24, 102)">
+      <!-- Precision Spectrum -->
+      <rect x="0" y="0" width="392" height="76" rx="8" fill="#0f172a" stroke="#38bdf8" stroke-width="1" />
+      <text x="14" y="24" font-size="12" font-weight="700" fill="#38bdf8" class="font-base">⚡ 1. Precision Spectrum (Default)</text>
+      <text x="14" y="46" font-size="11" fill="#94a3b8" class="font-base">Fixes line 42 in auth.ts with zero unrelated diff churn.</text>
+      <text x="14" y="64" font-size="11" font-weight="600" fill="#34d399" class="font-base">✓ Tested &amp; verified on Turn 1</text>
+
+      <!-- Root-Cause Spectrum -->
+      <rect x="0" y="86" width="392" height="76" rx="8" fill="#0f172a" stroke="#f59e0b" stroke-width="1" />
+      <text x="14" y="110" font-size="12" font-weight="700" fill="#fbbf24" class="font-base">🔬 2. Root-Cause Isolation (Hypothesis-First)</text>
+      <text x="14" y="132" font-size="11" fill="#94a3b8" class="font-base">Breaks failure loops: states top 2 hypotheses &amp; inspects</text>
+      <text x="14" y="150" font-size="11" fill="#94a3b8" class="font-base">relevant logs before touching any code.</text>
+
+      <!-- Strict Spec Spectrum -->
+      <rect x="0" y="172" width="392" height="76" rx="8" fill="#0f172a" stroke="#a855f7" stroke-width="1" />
+      <text x="14" y="196" font-size="12" font-weight="700" fill="#c084fc" class="font-base">🛡️ 3. Strict Spec (Production-Grade)</text>
+      <text x="14" y="218" font-size="11" fill="#94a3b8" class="font-base">Minimal typed diff, full error boundary handling,</text>
+      <text x="14" y="236" font-size="11" fill="#94a3b8" class="font-base">and verifies by running `npm test` before concluding.</text>
+    </g>
+
+    <!-- Bottom Result Banner -->
+    <rect x="24" y="366" width="392" height="76" rx="10" fill="#064e3b" fill-opacity="0.4" stroke="#10b981" stroke-width="1.5" />
+    <text x="44" y="396" font-size="13" font-weight="700" fill="#6ee7b7" class="font-base">🚀 $0 Extra Token Cost • 100% On-Device</text>
+    <text x="44" y="420" font-size="12" fill="#a7f3d0" class="font-base">Works with whichever model you already use in VS Code!</text>
+  </g>
+</svg>

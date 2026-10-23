@@ -288,9 +288,10 @@ class TestRefractEngine(unittest.TestCase):
         self.assertEqual((width, height), (256, 256))
 
     def test_vscode_vsix_packaging_integrity(self) -> None:
+        pkg = json.loads((PROJECT_ROOT / "package.json").read_text(encoding="utf-8"))
         vsix_path = build_vsix.package_vsix(output_dir=self.tmp_path)
         self.assertTrue(vsix_path.exists())
-        self.assertEqual(vsix_path.name, "refract-1.0.0.vsix")
+        self.assertEqual(vsix_path.name, f"refract-{pkg['version']}.vsix")
 
         with zipfile.ZipFile(vsix_path, "r") as zf:
             names = set(zf.namelist())
@@ -301,6 +302,8 @@ class TestRefractEngine(unittest.TestCase):
             self.assertIn("extension/CHANGELOG.md", names)
             self.assertIn("extension/LICENSE.txt", names)
             self.assertIn("extension/assets/logo.png", names)
+            self.assertIn("extension/assets/how-it-works-diagram.png", names)
+            self.assertIn("extension/assets/privacy-diagram.png", names)
             self.assertIn("extension/src/extension.js", names)
             self.assertIn("extension/src/refractCore.js", names)
             manifest_xml = zf.read("extension.vsixmanifest").decode("utf-8")

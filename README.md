@@ -1,40 +1,104 @@
 <div align="center">
-  <img src="https://raw.githubusercontent.com/damiththa/Refract/vscode-extension/assets/logo.png" alt="Refract Logo" width="110" height="110" />
+  <img src="https://raw.githubusercontent.com/damiththa/Refract/vscode-extension/assets/logo.png" alt="Refract Logo" width="100" height="100" />
   <h1>💠 Refract</h1>
-  <p><strong>AI Context & Prompt Trajectory Engine for VS Code Chat, GitHub Copilot & Google Antigravity</strong></p>
+  <p><strong>Stop Copilot from guessing blindly. Ground your prompts in your active files and compiler errors in &lt;2ms.</strong></p>
+  
   <p>
-    <em>Stop "prompt fluffing." Start Context & Trajectory Engineering.</em>
+    <a href="#-quick-start-30-seconds"><img src="https://img.shields.io/badge/Quick_Start-30_Seconds-2563EB?style=flat-square" alt="Quick Start" /></a>
+    <img src="https://img.shields.io/badge/Latency-%3C2ms_Local-10B981?style=flat-square" alt="Latency" />
+    <img src="https://img.shields.io/badge/Extra_Tokens-%240_(Zero)-8B5CF6?style=flat-square" alt="Zero Tokens" />
+    <img src="https://img.shields.io/badge/Privacy-100%25_On--Device-059669?style=flat-square" alt="Privacy" />
+    <img src="https://img.shields.io/badge/License-MIT-gray?style=flat-square" alt="License" />
   </p>
 </div>
 
 ---
 
-## ⚡ What Is Refract?
+## 🎯 Why Refract?
 
-Most prompt extensions treat prompt refinement like copywriting—taking a 6-word developer thought (*"fix the auth bug"*) and inflating it into a 200-word generic essay (*"Act as a 10x Senior Engineer..."*) without knowing your conversation history, open editor files, or live compiler errors.
+When you ask AI: *"Fix the error in this file"* or *"Why isn't this working?"*, standard AI assistants have a blind spot:
+* They don't know which file you're looking at.
+* They don't see the red squiggly error in your editor.
+* They don't know your last terminal command failed with exit code 1.
 
-**Refract** is different. Like an optical prism (`💠`) that takes a diffuse beam of light and refracts it into focused spectrums, Refract inspects your **live VS Code conversation history**, **active editor files**, **Problems panel diagnostics**, and **terminal exit codes** in **$<2\text{ms}$** to solve the real reasons coding prompts fail:
+So they guess. They hallucinate imports, edit the wrong lines, and when you reply *"still broken!"*, they apologize and dig the hole deeper.
 
-- 🔗 **Deictic & Pronoun Context Binding**: Resolves shorthand follow-ups (*"do the same for the other handler"*, *"fix that error in this file"*) to your active editor tabs, recent saves, and open diagnostics.
-- 🛟 **Vibe-Coding Failure Spiral Rescue**: Tracks VS Code **Problems** errors (`vscode.languages.getDiagnostics()`) and terminal exit codes (`onDidEndTerminalShellExecution`). When repeated errors or frustration prompts (*"still broken"*, *"same error"*) occur, Refract automatically pivots the agent into **Root-Cause Isolation** instead of blind guessing.
-- 🔀 **Pre-Flight Architectural Fork Detection**: Distinguishes between missing file context (auto-bound silently) and genuine architectural forks (e.g., caching strategy, auth flow, database choice) that need a 1-click decision before 10 files are edited.
-- 🛡️ **Zero Latency & Zero Extra Token Cost**: Runs a deterministic `<2ms` engine locally inside VS Code's Extension Host—no external API keys required, and strong prompts ($\ge 72/100$) pass through invisibly.
+**Refract fixes this in `<2ms` before your prompt ever reaches the AI.**
 
----
-
-## 🧠 How It Works, Data Privacy & LLM Architecture
-
-### In 4 Short Bullets
-1. **Intercepts Locally (`<2ms`, 100% On-Device)**: When you message `@refract`, invoke `#refract`, or press `Cmd+Alt+P`, Refract analyzes your prompt locally inside VS Code's built-in Extension Host *before* any LLM is called.
-2. **Reads Live IDE Trajectory**: Collects your active editor file paths, live compiler/linter errors from the **Problems** pane, recent terminal failures, and chat turn history (`context.history`).
-3. **Scores & Grounds (5-Dimension Rubric)**:
-   - **Score $\ge 72$ (Clear)**: Passes through untouched with zero overhead.
-   - **Score $< 72$ (Diffuse / Spiral / Fork)**: Binds missing file/diagnostic references and synthesizes 3 execution spectrums (**⚡ Precision**, **🔬 Root-Cause**, **🛡️ Strict Spec**).
-4. **Executes with Your Active VS Code Chat Model (`vscode.lm`)**: Forwards the grounded prompt directly to **whichever model you already have selected in VS Code Chat** (`request.model.sendRequest`)—or lets you pick a spectrum with 1 click.
+Like an optical prism (`💠`), Refract inspects your **active editor tab**, **compiler errors from the Problems pane**, and **terminal failures**, binding them directly into your prompt so your AI gets it right on **Turn 1**.
 
 ---
 
-### 🔒 Data Privacy & LLM Boundary Diagram
+## ⚡ The Difference (Before vs. After)
+
+| When You Type... | Without Refract ❌ | With Refract 💠 |
+| :--- | :--- | :--- |
+| **`"fix the error in this file"`** | Copilot guesses the file, hallucinates missing imports, and breaks working code. | **Auto-Grounding**: Refract binds `auth.ts:42` and the exact TypeScript error from your Problems pane. Clean fix on Turn 1. |
+| **`"it still doesn't work"`** *(Turn 3)* | **Failure Spiral**: Copilot apologizes, repeats the same broken snippet, and wastes your time. | **Spiral Rescue**: Refract detects repeated failures, stops blind guessing, and pivots Copilot into **Root-Cause Isolation** to verify logs first. |
+| **`"add caching"`** | Copilot arbitrarily installs Redis when all you wanted was an in-memory dictionary. | **Fork Detection**: Flags that caching has 3 architectural options (In-memory, Redis, HTTP) and asks for 1-click confirmation before writing 50 lines. |
+
+---
+
+## 🖼️ How Refract Works in 3 Simple Steps
+
+<p align="center">
+  <a href="https://github.com/damiththa/Refract">
+    <img src="https://raw.githubusercontent.com/damiththa/Refract/vscode-extension/assets/how-it-works-diagram.png" alt="How Refract Works Diagram" width="800" />
+  </a>
+</p>
+
+1. **You write naturally**: Type a quick prompt in chat (`@refract fix this`) or press `Cmd+Alt+P`.
+2. **Refract grounds it in &lt;2ms**: Silently attaches your active file, compiler errors, and terminal state (100% on-device, zero API calls).
+3. **Your active model executes**: Forwards the grounded prompt to whichever model you already use in VS Code (Copilot GPT-4o, Claude 3.5 Sonnet, etc.)—or lets you choose one of 3 focused spectrums.
+
+---
+
+## 🚀 Quick Start (30 Seconds)
+
+You can use Refract in whichever way fits your workflow:
+
+### Workflow 1: Direct in VS Code Chat (`@refract`)
+1. Open any file in your editor (e.g., `server.ts`).
+2. Open the Chat panel (`Cmd+Alt+I` / `Ctrl+Alt+I`) and type:
+   ```text
+   @refract fix the error in this file
+   ```
+3. Refract automatically binds `server.ts` and your open compiler errors, streams the fix directly, and provides 1-click follow-up spectrum buttons.
+
+### Workflow 2: Global Editor Shortcut (`Cmd+Alt+P`)
+1. Highlight any code (or just keep your cursor anywhere in an editor).
+2. Press **`Cmd + Alt + P`** (macOS) or **`Ctrl + Alt + P`** (Windows / Linux).
+3. Type a rough thought (e.g. `make this async and handle timeouts`).
+4. An instant QuickPick appears showing your prompt score and 3 execution spectrums. Pick one to copy or send straight to Chat!
+
+### Workflow 3: Interactive Visual Scorecard (`/check`)
+1. In Chat, type:
+   ```text
+   @refract /check add caching to the user endpoint
+   ```
+2. Refract opens the **Interactive 5-Dimension Scorecard** panel beside your code, displaying rubric score bars, bound files, and live tabs to preview each spectrum.
+
+---
+
+## 💠 The 3 Spectrums Explained
+
+Whenever Refract enhances a prompt, it synthesizes 3 tailored engineering spectrums:
+
+* ⚡ **Precision Spectrum (Context-Grounded — Default)**
+  * *Best for*: Everyday bug fixes, refactors, and fast implementation.
+  * *What it does*: Binds your active file and compiler error, instructs the AI to preserve existing interfaces and unrelated code, and asks for a clear summary of changes.
+
+* 🔬 **Root-Cause Spectrum (Hypothesis-First)**
+  * *Best for*: Stubborn errors, "it still doesn't work" loops, and breaking out of failure spirals.
+  * *What it does*: Prevents blind edits. Instructs the AI to state its top 2 root-cause hypotheses, inspect relevant code/logs to verify which is occurring, and apply a targeted fix.
+
+* 🛡️ **Strict Spec Spectrum (Guardrailed + Test-Verified)**
+  * *Best for*: Production pull requests, architectural changes, and mission-critical code.
+  * *What it does*: Enforces minimal diff scope, strict error handling, and requires running your project's test command (`npm test`, `pytest`, etc.) before concluding.
+
+---
+
+## 🔒 100% On-Device Privacy & Zero Cost
 
 <p align="center">
   <a href="https://github.com/damiththa/Refract">
@@ -42,64 +106,23 @@ Most prompt extensions treat prompt refinement like copywriting—taking a 6-wor
   </a>
 </p>
 
----
-
-### 🤖 At a Glance: Data Privacy & Which LLM Refract Uses
-
-| Question | How Refract Works | Why It Matters |
+| Guarantee | How It Works | Why It Matters |
 | :--- | :--- | :--- |
-| **Does Refract send my code or prompts outside my machine?** | **No — Never.** Refract contains **zero networking code** (no `fetch`, `http`, or external telemetry). All trajectory analysis, file binding, and diagnostic reading happen 100% in memory on your machine. | Safe for proprietary, enterprise, and NDA codebases. Refract never acts as a third-party proxy. |
-| **Which LLM does the `<2ms` analyzer use?** | **None (Deterministic Local Engine).** Refract uses fast local heuristics, AST/identifier pattern matching, and live IDE diagnostic state rather than calling an external LLM. | **$<2\text{ms}$ latency** instead of waiting $2\text{–}4\text{ seconds}$ before every chat message, and **\$0 extra token cost**. |
-| **Which LLM executes the refracted prompt?** | **Your Active VS Code Chat Model (`vscode.lm`).** `@refract` uses `request.model.sendRequest` to stream directly from the model you already selected in VS Code's chat picker. | No separate OpenAI/Anthropic/Gemini API keys to configure or pay for. |
+| **0 External Network Calls** | Refract contains **zero networking code**. No telemetry, no external server, no data leaving your machine. | 100% safe for proprietary, enterprise, and NDA codebases. |
+| **$0 Extra Token Cost** | Trajectory scoring and file binding happen in local JavaScript in **&lt;2ms**. It does not call an external LLM to refine your prompt. | Fast response time (&lt;2ms) and zero added API charges. |
+| **Your Choice of LLM** | `@refract` forwards directly to whichever model you already selected in VS Code Chat (Copilot GPT-4o, Claude 3.5 Sonnet, etc.). | No separate OpenAI, Anthropic, or Gemini API keys to configure. |
 
 ---
 
-## 💻 System Requirements & Pre-Flight Checks
+## ⌨️ Cheat Sheet & Shortcuts
 
-Refract is designed so **end-users need zero extra software installed**, while contributors have clear build checks:
-
-| Audience | What You Need Installed | Why |
-| :--- | :--- | :--- |
-| **VS Code End-Users** *(Installing from Marketplace or `.vsix`)* | **VS Code 1.95+** only (**Zero extra installs!**) | Runs natively inside VS Code's built-in Node.js Extension Host with **0 external `npm` packages** and **no Python required**. |
-| **Extension Contributors** *(Packaging `.vsix` from source)* | **Node.js 18+ & npm** *(for `@vscode/vsce` CLI)* **OR** **Python 3.8+** *(for zero-dependency `scripts/build_vsix.py`)* | Lets you package `refract-1.0.0.vsix` either with Microsoft's `@vscode/vsce` CLI or our built-in zero-dependency Python packager. |
-| **Google Antigravity Users** *(`main` / `antigravity-extension` branch)* | **Python 3.8+** (standard library only, 0 `pip` packages) | Powers the Antigravity `PreInvocation` lifecycle hook (`scripts/refract_engine.py`). |
-
-### Automated Pre-Flight Check Commands
-```bash
-# Check environment requirements for VS Code extension development & packaging
-./install.sh --check-vscode
-
-# Package refract-1.0.0.vsix with zero Node/npm dependencies (uses Python 3.8+ stdlib)
-python3 scripts/build_vsix.py
-
-# Or package via Microsoft's official @vscode/vsce CLI (requires Node.js 18+ & npm)
-npx @vscode/vsce package
-```
-
----
-
-## 📋 VS Code Quick Cheatsheet
-
-### 1. Chat Participant Commands (`@refract`)
-
-| Command in VS Code Chat | What It Does | Example |
-| :--- | :--- | :--- |
-| **`@refract <prompt>`** | Grounds your prompt against active files & diagnostics and executes it with your selected Chat model. | `@refract fix the error in this handler` |
-| **`@refract /refract <draft>`** | Scores your prompt across the 5-Dimension Rubric and shows **1-click follow-up buttons** for **⚡ Precision**, **🔬 Root-Cause**, and **🛡️ Strict Spec**. | `@refract /refract make this async and handle timeouts` |
-| **`@refract /check <draft>`** | Opens the **Interactive 5-Dimension Trajectory Scorecard** Webview panel beside your editor. | `@refract /check add caching to the user endpoint` |
-| **`@refract /mode [mode]`** | View or switch operating mode (`auto-intercept`, `coach`, or `slash-only`). | `@refract /mode coach` |
-| **`@refract /doctor`** | Displays live runtime health, bound workspace files, and active Problems count. | `@refract /doctor` |
-
-### 2. Language Model Tool (`#refract` in Any Chat)
-Type **`#refract`** inside *any* standard Copilot / Agent Mode chat prompt to let the model invoke the `refract_prompt` tool and ground your request in active workspace diagnostics.
-
-### 3. Keyboard Shortcuts & Command Palette (`Cmd+Shift+P`)
-
-| Shortcut (macOS) | Shortcut (Windows / Linux) | Command Palette Title | What It Does |
+| Action | Shortcut (macOS) | Shortcut (Windows/Linux) | In Chat |
 | :--- | :--- | :--- | :--- |
-| **`Cmd + Alt + P`** | **`Ctrl + Alt + P`** | `💠 Refract: Refract Prompt (3 Spectrums)...` | Pops up an instant input + QuickPick with your 5-Dimension Score and 1-click execution for **⚡ Precision**, **🔬 Root-Cause**, or **🛡️ Strict Spec**. |
-| **`Cmd + Alt + Shift + P`** | **`Ctrl + Alt + Shift + P`** | `💠 Refract: Open Interactive Trajectory Scorecard` | Opens the visual 5-Dimension Scorecard Webview beside your active editor. |
-| *(Status Bar Click)* | *(Status Bar Click)* | `💠 Refract: Switch Operating Mode...` | Click `💠 Refract: Auto` in the bottom-right status bar to refract a prompt or switch modes. |
+| **Refract a Prompt** | `Cmd + Alt + P` | `Ctrl + Alt + P` | `@refract <prompt>` |
+| **Pick from 3 Spectrums** | — | — | `@refract /refract <prompt>` |
+| **Open Visual Scorecard** | `Cmd + Alt + Shift + P` | `Ctrl + Alt + Shift + P` | `@refract /check <prompt>` |
+| **Health & Diagnostic Check**| — | — | `@refract /doctor` |
+| **Switch Mode (Auto/Coach)** | Click Status Bar | Click Status Bar | `@refract /mode` |
 
 ---
 
@@ -120,16 +143,6 @@ Type **`#refract`** inside *any* standard Copilot / Agent Mode chat prompt to le
 
 ### Shared Team Config (`.agents/refract.json` or `.vscode/refract.json`)
 Commit `.agents/refract.json` or `.vscode/refract.json` to your repository so both **VS Code** and **Google Antigravity** teammates automatically share the same project rules and score thresholds!
-
----
-
-## 🌿 Repository Branch Structure
-
-| Branch | Target Platform | Status |
-| :--- | :--- | :--- |
-| **`main`** | Core trajectory engine & cross-platform overview | ✅ Active |
-| **`antigravity-extension`** | **Google Antigravity Native Plugin** (`plugin.json`, `hooks.json`, `skills/`, `rules/`) | ✅ Ready (`v1.0.0`) |
-| **`vscode-extension`** | **VS Code Extension** (`package.json`, `src/extension.js`, `@refract`, `#refract`, `Cmd+Alt+P`, `.vsix`) | ✅ Ready (`v1.0.0`) |
 
 ---
 

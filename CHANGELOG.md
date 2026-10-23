@@ -1,6 +1,19 @@
 # Change Log — 💠 Refract
 
-All notable changes to the **Refract — AI Context & Prompt Trajectory Engine** extension will be documented in this file.
+All notable changes to the **Refract** extension will be documented in this file.
+
+## [1.0.1] - 2026-10-23
+
+### Enhanced
+- **New Instructional Marketplace Overview & Quick Start**:
+  - Clear 30-second workflow guides for `@refract` Chat, `Cmd+Alt+P` QuickPick, and `#refract` Copilot Agent Mode.
+  - Side-by-side **Before vs. After** comparison table highlighting auto-grounding, failure-spiral rescue, and architectural fork detection.
+  - Plain-English breakdown of the 3 Execution Spectrums (⚡ Precision, 🔬 Root-Cause, 🛡️ Strict Spec).
+- **New Visual 3-Step Workflow Diagram**:
+  - Bundled high-resolution 1600x640 workflow graphic (`assets/how-it-works-diagram.png`) illustrating prompt auto-grounding in &lt;2ms.
+  - Dedicated Enterprise Privacy & Data Security section with architecture diagram.
+- **Improved Display & Marketplace Discoverability**:
+  - Updated title to *Refract — Instant Context Grounding for VS Code Chat & Copilot*.
 
 ## [1.0.0] - 2026-10-18
 

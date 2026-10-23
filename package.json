@@ -1,8 +1,8 @@
 {
   "name": "refract",
-  "displayName": "Refract — AI Context & Prompt Trajectory Engine",
-  "description": "Trajectory-aware AI prompt refiner & failure-spiral rescuer for VS Code Chat & Copilot. Grounds vague prompts in active files, compiler diagnostics, and terminal errors in <5ms (100% local, zero extra token cost).",
-  "version": "1.0.0",
+  "displayName": "Refract — Instant Context Grounding for VS Code Chat & Copilot",
+  "description": "Ground vague coding prompts in your active files, compiler errors, and terminal output in <2ms. Stops Copilot hallucination loops and failure spirals (100% local, 0 extra tokens).",
+  "version": "1.0.1",
   "publisher": "MDMS",
   "license": "MIT",
   "icon": "assets/logo.png",
