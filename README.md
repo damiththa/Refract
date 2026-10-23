@@ -219,7 +219,8 @@ Refract is built strictly to official **Google Antigravity** and **VS Code** ext
 - **Antigravity `plugin.json` Schema**: Uses only supported manifest fields (`name`, `displayName`, `version`, `description`, `logo`, `suggestedPrompts`) with a square $256\times256$ high-contrast `assets/logo.svg` containing $>10\%$ safe padding.
 - **Root-Level `hooks.json` with Graceful Fallback**: Placed at the plugin root (`./hooks.json`) as required for native Antigravity plugins, using `python3 ./scripts/refract_engine.py 2>/dev/null || echo '{}'` so even if `python3` is missing on a shared machine, the hook safely passes through `{}` and never blocks a chat turn.
 - **Consolidated `rules/AGENTS.md`**: Uses a single plain-markdown `rules/AGENTS.md` file without YAML frontmatter for deterministic rule deduplication.
-- **VS Code Phase 2 Packaging (`vscode-extension` branch)**: Follows VS Code's `esbuild` single-file bundling guideline so Marketplace `.vsix` users do not need `npm` at runtime, while `./install.sh --check-vscode` validates **Node.js 18+**, **npm**, and **Python 3.8+** for contributors.
+- **VS Code Phase 2 Packaging (`vscode-extension` branch)**: Follows VS Code's `esbuild` single-file bundling guideline so Marketplace `.vsix` users do not need `npm` at runtime, published as `MDMS.refract` on the Visual Studio Marketplace.
+- **Microsoft 365 Copilot Declarative Agent (`m365-copilot` branch)**: Strictly adheres to Microsoft Teams App Manifest v1.19 and Declarative Agent Schema v1.6 with zero-dependency standalone packaging (`refract-m365-copilot.zip`).
 
 ---
 
@@ -228,8 +229,9 @@ Refract is built strictly to official **Google Antigravity** and **VS Code** ext
 | Branch | Target Platform | Status |
 | :--- | :--- | :--- |
 | **`main`** | Primary release branch & cross-platform documentation | ✅ Active |
-| **`antigravity-extension`** | **Google Antigravity Native Plugin** (`plugin.json`, `hooks.json`, `skills/`, `rules/`) | ✅ Ready for Antigravity Marketplace |
-| **`vscode-extension`** | **VS Code Extension** (`@refract` Chat Participant, `#refractPrompt` LM Tool, `Cmd+Alt+P`) | 🚧 Phase 2 (Requires Node.js 18+ & npm) |
+| **`antigravity-extension`** | **Google Antigravity Native Plugin** (`plugin.json`, `hooks.json`, `skills/`, `rules/`) | ✅ Ready |
+| **`vscode-extension`** | **VS Code Marketplace Extension** (`MDMS.refract` v1.0.1) | ✅ [Live on Marketplace](https://marketplace.visualstudio.com/items?itemName=MDMS.refract) |
+| **`m365-copilot`** | **Microsoft 365 Copilot Declarative Agent** (`appPackage/`, `manifest.json`) | ✅ Ready for Sideload / Tenant Deployment |
 
 ---
 
