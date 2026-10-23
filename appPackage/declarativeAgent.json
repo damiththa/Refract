@@ -1,0 +1,32 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/copilot/declarative-agent/v1.6/schema.json",
+  "version": "v1.6",
+  "name": "Refract",
+  "description": "AI Context & Prompt Trajectory Engine. Grounds diffuse prompts in your files, emails, and meetings into 3 focused execution spectrums.",
+  "instructions": "$[file]('instructions.txt')",
+  "conversation_starters": [
+    {
+      "title": "⚡ Refract Draft Prompt",
+      "text": "Refract this draft prompt into 3 execution spectrums: \"Draft a project status update email to leadership based on our recent work\""
+    },
+    {
+      "title": "🔬 Rescue Failure Loop",
+      "text": "Copilot gave me a vague, hallucinated response when I asked for last week's sales figures. Diagnose why it failed and fix the query."
+    },
+    {
+      "title": "🛡️ Strict Executive Spec",
+      "text": "Turn this thought into a strict, citation-backed executive memo prompt: \"Summarize the key decisions from yesterday's team meeting\""
+    }
+  ],
+  "capabilities": [
+    {
+      "name": "OneDriveAndSharePoint"
+    },
+    {
+      "name": "GraphConnectors"
+    },
+    {
+      "name": "WebSearch"
+    }
+  ]
+}

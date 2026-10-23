@@ -1,0 +1,41 @@
+{
+  "$schema": "https://developer.microsoft.com/en-us/json-schemas/teams/v1.19/MicrosoftTeams.schema.json",
+  "manifestVersion": "1.19",
+  "version": "1.0.0",
+  "id": "a8b7c6d5-e4f3-4210-9876-543210abcdef",
+  "packageName": "com.mdms.refract",
+  "developer": {
+    "name": "MDMS",
+    "websiteUrl": "https://github.com/damiththa/Refract",
+    "privacyUrl": "https://github.com/damiththa/Refract#readme",
+    "termsOfUseUrl": "https://github.com/damiththa/Refract#readme"
+  },
+  "icons": {
+    "color": "color.png",
+    "outline": "outline.png"
+  },
+  "name": {
+    "short": "Refract",
+    "full": "Refract — AI Context & Prompt Trajectory Engine"
+  },
+  "description": {
+    "short": "Context & Prompt Trajectory Engine for Microsoft 365 Copilot.",
+    "full": "Stop Copilot from guessing blindly. Refract grounds vague prompts in your active SharePoint files, Outlook emails, Teams chats, and calendar meetings, synthesizing 3 focused execution spectrums (⚡ Precision, 🔬 Root-Cause, 🛡️ Strict Executive Spec)."
+  },
+  "accentColor": "#2563EB",
+  "copilotAgents": {
+    "declarativeAgents": [
+      {
+        "id": "refractAgent",
+        "file": "declarativeAgent.json"
+      }
+    ]
+  },
+  "permissions": [
+    "identity",
+    "messageTeamMembers"
+  ],
+  "validDomains": [
+    "github.com"
+  ]
+}
