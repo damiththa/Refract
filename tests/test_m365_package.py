@@ -72,6 +72,29 @@ class TestM365Package(unittest.TestCase):
             self.assertIn("color.png", names)
             self.assertIn("outline.png", names)
 
+    def test_instructions_content_and_rubric(self) -> None:
+        instructions_path = PROJECT_ROOT / "appPackage" / "instructions.txt"
+        self.assertTrue(instructions_path.exists())
+        text = instructions_path.read_text(encoding="utf-8")
+        self.assertIn("5-DIMENSION ENTERPRISE RUBRIC", text)
+        self.assertIn("INTENT & DELIVERABLE SPECIFICITY", text)
+        self.assertIn("DEICTIC CONTEXT GROUNDING", text)
+        self.assertIn("FAILURE SPIRAL RESCUE", text)
+        self.assertIn("Precision Spectrum", text)
+        self.assertIn("Root-Cause / Diagnostic Spectrum", text)
+        self.assertIn("Strict Executive Spec", text)
+        self.assertGreater(len(text), 1000)
+
+    def test_documentation_and_examples_exist(self) -> None:
+        readme_path = PROJECT_ROOT / "README.md"
+        examples_path = PROJECT_ROOT / "examples" / "ENTERPRISE_EXAMPLES.md"
+        guide_path = PROJECT_ROOT / "docs" / "M365_SETUP_GUIDE.md"
+        self.assertTrue(readme_path.exists())
+        self.assertTrue(examples_path.exists())
+        self.assertTrue(guide_path.exists())
+        self.assertIn("Example 1", examples_path.read_text(encoding="utf-8"))
+        self.assertIn("Method 1: Web Agent Builder", guide_path.read_text(encoding="utf-8"))
+
 
 if __name__ == "__main__":
     unittest.main()

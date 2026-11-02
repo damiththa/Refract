@@ -10,6 +10,12 @@
     <img src="https://img.shields.io/badge/Cloud_Hosting-%240_(Zero)-8B5CF6?style=flat-square" alt="Zero Hosting" />
     <img src="https://img.shields.io/badge/License-MIT-gray?style=flat-square" alt="License" />
   </p>
+
+  <p>
+    <a href="docs/M365_SETUP_GUIDE.md"><strong>📖 Complete Setup Guide</strong></a> •
+    <a href="examples/ENTERPRISE_EXAMPLES.md"><strong>💼 Real-World Enterprise Examples</strong></a> •
+    <a href="refract-m365-copilot.zip"><strong>📦 Download Agent Package (.zip)</strong></a>
+  </p>
 </div>
 
 ---
@@ -98,6 +104,8 @@ flowchart TD
 | **`"Still wrong, try again"`** *(Turn 3)* | **Failure Loop**: Repeats the same incorrect text and wastes your meeting prep time. | **🔬 Root-Cause Rescue**: Halts blind retries, identifies why Copilot failed (e.g. missing SharePoint read permissions or ambiguous date scope), and fixes the query. |
 | **`"Prepare board meeting notes"`** | Mixes internal draft speculation with official corporate records. | **🛡️ Strict Executive Spec**: Enforces formal tone, executive summary first, bulleted decisions, and mandatory source citations. |
 
+> 💡 **Want to see full before-and-after walkthroughs?** Explore all 5 enterprise use cases in the [**Real-World Enterprise Examples Guide**](examples/ENTERPRISE_EXAMPLES.md).
+
 ---
 
 ## 💠 The 3 Enterprise Spectrums
@@ -177,7 +185,7 @@ If your tenant allows custom app uploading:
 3. Refract will appear instantly under your **Agents** rail across all Microsoft 365 Copilot surfaces.
 
 > [!NOTE]
-> **Enterprise Tenant Rollout**: IT Administrators can deploy Refract company-wide across the entire organization in under 60 seconds by uploading `refract-m365-copilot.zip` in the **[Microsoft 365 Admin Center](https://admin.microsoft.com)** under **Settings** → **Integrated apps** → **Upload custom apps**.
+> **Enterprise Tenant Rollout**: IT Administrators can deploy Refract company-wide across the entire organization in under 60 seconds by uploading `refract-m365-copilot.zip` in the **[Microsoft 365 Admin Center](https://admin.microsoft.com)** under **Settings** → **Integrated apps** → **Upload custom apps**. See the [**Complete M365 Setup Guide**](docs/M365_SETUP_GUIDE.md) for full administrative steps and permission policies.
 
 ---
 
